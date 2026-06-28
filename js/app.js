@@ -103,16 +103,21 @@
   }
 
   /* ---------- LIGHTBOX ---------- */
+  var lbOpen = false;
   function openLightbox(src, alt) {
     var lb = document.getElementById("lightbox");
     var im = document.getElementById("lightboxImg");
     im.src = src; im.alt = alt || "";
     lb.hidden = false;
+    lbOpen = true;
+    // Geri tuşu tüm menüyü kapatmasın: tarihçeye giriş ekle → geri'de sadece foto kapanır
+    try { history.pushState({ lb: 1 }, ""); } catch (e) {}
   }
   function closeLightbox() {
     var lb = document.getElementById("lightbox");
     lb.hidden = true;
     document.getElementById("lightboxImg").src = "";
+    lbOpen = false;
   }
 
   /* ---------- SEKMELER ---------- */
@@ -141,7 +146,13 @@
     if (!b) return;
     showTab(b.getAttribute("data-tab"));
   });
-  document.getElementById("lightbox").addEventListener("click", closeLightbox);
+  document.getElementById("lightbox").addEventListener("click", function () {
+    if (lbOpen) { history.back(); } else { closeLightbox(); }
+  });
+  // Android/tarayıcı geri tuşu: lightbox açıksa sadece onu kapat (siteden çıkma)
+  window.addEventListener("popstate", function () {
+    if (lbOpen) { closeLightbox(); }
+  });
 
   render();
   showTab("menu");

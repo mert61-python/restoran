@@ -1,6 +1,6 @@
 /* Service Worker — offline önbellek
    Menü bir kez açıldıktan sonra internet olmasa da açılır. */
-var CACHE = "pazarcik-menu-v3";
+var CACHE = "pazarcik-menu-v4";
 var ASSETS = [
   "./",
   "./index.html",
