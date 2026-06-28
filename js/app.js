@@ -49,6 +49,12 @@
         var main = el("div", "item-main");
         var nm = el("div", "item-name"); nm.textContent = t(it.name);
         main.appendChild(nm);
+        // Arapça/İngilizce modda personelin anlaması için Türkçe karşılık
+        if (lang !== "tr") {
+          var trn = el("div", "item-name-tr");
+          trn.textContent = "🇹🇷 " + (it.name.tr || "");
+          main.appendChild(trn);
+        }
         if (it.desc) { var d = el("div", "item-desc"); d.textContent = t(it.desc); main.appendChild(d); }
 
         var prices = el("div", "item-prices" + (it.prices.length > 1 ? " multi" : ""));

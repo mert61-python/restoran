@@ -24,8 +24,14 @@
       border:2px solid var(--wood);border-radius:18px;overflow:hidden;
       box-shadow:0 8px 30px rgba(0,0,0,.4);
     }
-    .photo{height:96px;background:url("img/manzara6.jpeg") center/cover;position:relative}
-    .photo::after{content:"";position:absolute;inset:0;background:linear-gradient(to bottom,rgba(0,0,0,.1),rgba(35,64,47,.55))}
+    /* Üst fotoğraf: menüdeki gibi bölünmüş YAZ (sol) + KIŞ (sağ), tam dükkan */
+    .photo{position:relative;aspect-ratio:4/3;display:flex;direction:ltr;overflow:hidden;background:#2f5a3f}
+    .photo .h{flex:1 1 50%;background-position:center;background-size:cover;background-repeat:no-repeat}
+    .photo .h.s{background-image:url("img/hero.jpeg")}
+    .photo .h.w{background-image:url("img/manzara6.jpeg");border-left:2px solid rgba(255,255,255,.75)}
+    .photo .ptag{position:absolute;bottom:8px;z-index:2;font-size:10px;font-weight:700;color:#fff;background:rgba(0,0,0,.45);padding:2px 9px;border-radius:999px}
+    .photo .ptag.l{left:8px}.photo .ptag.r{right:8px}
+
     .title{text-align:center;padding:12px 14px 6px}
     .title h1{margin:0;font-size:19px;color:var(--green);line-height:1.2}
     .brand{display:inline-block;margin-top:7px;background:#161616;color:#fff;font-size:11px;font-weight:800;
@@ -44,6 +50,7 @@
     .foot{text-align:center;font-size:11px;color:#fff;background:var(--green);padding:8px}
 
     @media print{
+      *{-webkit-print-color-adjust:exact;print-color-adjust:exact}
       body{background:#fff;padding:0}
       .controls{display:none}
       .card{box-shadow:none;margin:0 auto}
@@ -63,11 +70,16 @@
       <button id="gen" onclick="generate()">QR'ları Oluştur</button>
       <button id="prn" onclick="window.print()">🖨 Yazdır</button>
     </div>
-    <div class="tip">WiFi bilgisini gir → "QR'ları Oluştur" → "Yazdır". Şifre sadece sende kalır.</div>
+    <div class="tip">WiFi bilgisini gir → "QR'ları Oluştur" → "Yazdır". Şifre sadece sende kalır. (Yazdırırken "Arka plan grafikleri / Background graphics" seçeneğini açık tut ki fotoğraf çıksın.)</div>
   </div>
 
   <div class="card">
-    <div class="photo"></div>
+    <div class="photo">
+      <div class="h s"></div>
+      <div class="h w"></div>
+      <span class="ptag l">☀️ Yaz</span>
+      <span class="ptag r">❄️ Kış</span>
+    </div>
     <div class="title">
       <h1>Pazarcık Alabalık<br>Dinlenme Tesisleri</h1>
       <span class="brand">🔥 ET · KÖFTE · <b>CANLI ALABALIK</b></span>

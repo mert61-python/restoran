@@ -65,6 +65,7 @@ body {
   position: absolute;
   inset: 0;
   display: flex;
+  direction: ltr;            /* Arapça modda bile sol=yaz, sağ=kış kalsın */
   z-index: 0;
   background: var(--hero-fallback);
 }
@@ -228,6 +229,7 @@ body {
 }
 .item-main { min-width: 0; flex: 1; }
 .item-name { font-size: 16px; font-weight: 700; color: var(--forest-dark); }
+.item-name-tr { margin-top: 3px; font-size: 12.5px; font-weight: 600; color: var(--moss); }
 .item-desc { margin-top: 4px; font-size: 13px; color: var(--muted); line-height: 1.35; }
 
 .item-prices {

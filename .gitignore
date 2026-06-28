@@ -1,6 +1,5 @@
 # Test / yerel araç dosyaları (yayına gerekmez)
-_responsive-test.html
-_rtest2.html
+_*.html
 udd_*/
 *.zip
 
