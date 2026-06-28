@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0">
+  <title>Pazarcık Alabalık Dinlenme Tesisleri — Menü</title>
+  <meta name="description" content="Pazarcık Canlı Alabalık · Et · Köfte · Balık — Menü & Galeri">
+  <meta name="theme-color" content="#161616">
+  <link rel="manifest" href="manifest.webmanifest">
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+  <div class="app">
+    <header class="hero" id="hero">
+      <div class="hero-split">
+        <div class="hero-half left"></div>
+        <div class="hero-half right"></div>
+      </div>
+      <div class="hero-overlay"></div>
+      <div class="hero-content">
+        <h1 class="hero-title" id="restName"></h1>
+        <p class="hero-tagline" id="restTagline"></p>
+      </div>
+      <span class="season-tag left">☀️ Yaz</span>
+      <span class="season-tag right">❄️ Kış</span>
+    </header>
+
+    <div class="brandbar">
+      <span class="flame" aria-hidden="true">🔥</span>
+      <span class="offerings" id="offerings"></span>
+      <span class="flame" aria-hidden="true">🔥</span>
+    </div>
+
+    <div class="topbar">
+      <nav class="tabs" id="tabs" aria-label="Menü / Galeri">
+        <button type="button" data-tab="menu" class="active">🍽️ <span id="tabMenu"></span></button>
+        <button type="button" data-tab="gallery">📷 <span id="tabGallery"></span></button>
+      </nav>
+      <nav class="lang-switch" id="langSwitch" aria-label="Dil / Language">
+        <button type="button" data-lang="tr">TR</button>
+        <button type="button" data-lang="ar">عربي</button>
+        <button type="button" data-lang="en">EN</button>
+      </nav>
+    </div>
+
+    <main>
+      <section id="menu" class="menu"></section>
+      <section id="gallery" class="gallery" hidden></section>
+    </main>
+
+    <footer class="foot">
+      <div class="foot-content">
+        <p class="foot-note" id="footNote"></p>
+      </div>
+    </footer>
+  </div>
+
+  <div class="lightbox" id="lightbox" hidden>
+    <img id="lightboxImg" alt="">
+  </div>
+
+  <script src="js/menu-data.js"></script>
+  <script src="js/app.js"></script>
+</body>
+</html>

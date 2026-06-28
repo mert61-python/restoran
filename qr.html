@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>QR Üretici — Pazarcık Menü</title>
+  <style>
+    :root{ --red:#D62E22; --green:#23402F; --gold:#C9A227; }
+    *{box-sizing:border-box}
+    body{margin:0;font-family:"Segoe UI",Arial,sans-serif;background:#11201a;color:#eee;padding:18px}
+    h1{font-size:20px;margin:0 0 4px}
+    .sub{color:#9fb3a8;font-size:13px;margin-bottom:18px}
+    .grid{display:flex;flex-wrap:wrap;gap:18px}
+    .card{background:#fff;color:#222;border-radius:16px;padding:20px;flex:1 1 320px;box-shadow:0 6px 24px rgba(0,0,0,.4)}
+    .card h2{margin:0 0 4px;font-size:18px;color:var(--green)}
+    .card .hint{font-size:12.5px;color:#777;margin-bottom:14px}
+    label{display:block;font-size:13px;font-weight:600;margin:10px 0 4px;color:#444}
+    input,select{width:100%;padding:10px;border:1px solid #ccc;border-radius:9px;font-size:15px}
+    button{margin-top:14px;width:100%;padding:12px;border:0;border-radius:10px;background:var(--red);color:#fff;font-weight:700;font-size:15px;cursor:pointer}
+    button.alt{background:var(--green)}
+    .qrbox{display:flex;justify-content:center;margin-top:16px;min-height:40px}
+    .qrbox img,.qrbox canvas{border:8px solid #fff;border-radius:8px;box-shadow:0 2px 10px rgba(0,0,0,.15)}
+    .note{font-size:12px;color:#888;margin-top:10px;text-align:center}
+    .top{background:#161616;border:1px solid #333;border-radius:12px;padding:12px 14px;margin-bottom:18px;font-size:13px;color:#ddd}
+    code{background:#0c1611;padding:2px 6px;border-radius:5px;color:var(--gold)}
+  </style>
+</head>
+<body>
+  <h1>🔳 QR Üretici — Pazarcık Alabalık</h1>
+  <div class="sub">İki QR: (1) Menüyü açan QR · (2) WiFi'a otomatik bağlayan QR. Oluştur → İndir → yazdır.</div>
+
+  <div class="top">
+    ✅ <b>CANLI adres:</b> <code>https://admirable-fox-2c3cd8.netlify.app</code><br>
+    Menü QR'ı bu adrese ayarlı — tablolara basılacak QR budur. (Yerel test adresi artık gerekmez.)
+  </div>
+
+  <div class="grid">
+    <!-- MENÜ QR -->
+    <div class="card">
+      <h2>🍽️ Menü QR</h2>
+      <div class="hint">Masaya konacak. Okutunca menü açılır.</div>
+      <label>Menü adresi (URL)</label>
+      <input id="menuUrl" type="text" value="https://admirable-fox-2c3cd8.netlify.app">
+      <button onclick="genMenu()">QR Oluştur</button>
+      <button class="alt" onclick="download('qrMenu','pazarcik-menu-qr.png')">⬇ PNG İndir</button>
+      <div class="qrbox" id="qrMenu"></div>
+    </div>
+
+    <!-- WIFI QR -->
+    <div class="card">
+      <h2>📶 WiFi QR</h2>
+      <div class="hint">Okutunca telefon şifre yazmadan WiFi'a bağlanır.</div>
+      <label>Ağ adı (WiFi SSID)</label>
+      <input id="ssid" type="text" placeholder="Örn: Pazarcik_WiFi">
+      <label>Şifre</label>
+      <input id="pass" type="text" placeholder="WiFi şifresi">
+      <label>Şifreleme</label>
+      <select id="enc">
+        <option value="WPA" selected>WPA / WPA2 (en yaygın)</option>
+        <option value="nopass">Şifresiz / açık ağ</option>
+      </select>
+      <button onclick="genWifi()">QR Oluştur</button>
+      <button class="alt" onclick="download('qrWifi','pazarcik-wifi-qr.png')">⬇ PNG İndir</button>
+      <div class="qrbox" id="qrWifi"></div>
+      <div class="note">iPhone: Kamera · Android: Kamera/Google Lens ile okunur.</div>
+    </div>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/gh/davidshimjs/qrcodejs/qrcode.min.js"></script>
+  <script>
+    function makeQR(id, text){
+      var c=document.getElementById(id); c.innerHTML="";
+      new QRCode(c,{text:text,width:280,height:280,correctLevel:QRCode.CorrectLevel.H});
+    }
+    function genMenu(){
+      var u=document.getElementById("menuUrl").value.trim();
+      if(!u){alert("Menü adresi gir");return;}
+      makeQR("qrMenu",u);
+    }
+    function esc(s){ return s.replace(/([\\;,":])/g,"\\$1"); }
+    function genWifi(){
+      var ssid=document.getElementById("ssid").value;
+      var pass=document.getElementById("pass").value;
+      var enc=document.getElementById("enc").value;
+      if(!ssid){alert("Ağ adını (SSID) gir");return;}
+      var s = (enc==="nopass")
+        ? "WIFI:T:nopass;S:"+esc(ssid)+";;"
+        : "WIFI:T:WPA;S:"+esc(ssid)+";P:"+esc(pass)+";;";
+      makeQR("qrWifi",s);
+    }
+    function download(id,name){
+      var c=document.getElementById(id);
+      var cv=c.querySelector("canvas"), im=c.querySelector("img"), url;
+      if(cv){url=cv.toDataURL("image/png");}
+      else if(im){url=im.src;}
+      else {alert("Önce QR oluştur");return;}
+      var a=document.createElement("a");a.href=url;a.download=name;document.body.appendChild(a);a.click();a.remove();
+    }
+    window.addEventListener("load",function(){ setTimeout(genMenu,300); });
+  </script>
+</body>
+</html>

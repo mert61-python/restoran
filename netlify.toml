@@ -1,0 +1,4 @@
+# Statik site — derleme yok, kök klasör yayınlanır.
+[build]
+  publish = "."
+  command = ""

@@ -1,0 +1,9 @@
+# Test / yerel araç dosyaları (yayına gerekmez)
+_responsive-test.html
+_rtest2.html
+udd_*/
+*.zip
+
+# OS
+Thumbs.db
+.DS_Store

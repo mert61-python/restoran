@@ -1,0 +1,14 @@
+{
+  "name": "Pazarcık Alabalık Dinlenme Tesisleri",
+  "short_name": "Pazarcık Menü",
+  "description": "Pazarcık Alabalık Dinlenme Tesisleri — Menü",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "portrait",
+  "lang": "tr",
+  "dir": "auto",
+  "background_color": "#23402F",
+  "theme_color": "#23402F",
+  "icons": []
+}

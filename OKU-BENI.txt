@@ -1,0 +1,58 @@
+PAZARCIK ALABALIK DİNLENME TESİSLERİ — DİJİTAL MENÜ
+=====================================================
+
+Bu klasör, QR ile açılan offline menünün tamamıdır.
+
+------------------------------------------------------
+1) MENÜYÜ BİLGİSAYARDA ÖNİZLEME
+------------------------------------------------------
+- "index.html" dosyasına çift tıkla → tarayıcıda açılır.
+- Üstteki TR / عربي / EN düğmeleriyle dili değiştir.
+(Not: Offline önbellek özelliği yalnızca internete yükleyince
+ çalışır; bilgisayarda önizlemede menü yine de görünür.)
+
+------------------------------------------------------
+2) FİYAT / ÜRÜN DEĞİŞTİRME
+------------------------------------------------------
+- "js" klasöründeki "menu-data.js" dosyasını Not Defteri ile aç.
+- "value: 400" gibi sayıları değiştirip kaydet.
+- Yeni ürün eklemek için mevcut bir satırı kopyala/yapıştır.
+- Kaydettikten sonra (internete yüklediysen) yeniden yükle.
+
+------------------------------------------------------
+3) KAPAK FOTOĞRAFI EKLEME (dere/orman fotoğrafın)
+------------------------------------------------------
+- Bu klasörde "img" adında bir klasör oluştur.
+- Fotoğrafı  img/hero.jpg  olarak içine koy (yatay, geniş olsun).
+- "css/style.css" dosyasını aç, şu satırı bul:
+       --hero-photo: none;
+  şununla değiştir:
+       --hero-photo: url("../img/hero.jpg");
+- Kaydet. Bulanıklık + koyu katman otomatik uygulanır.
+
+------------------------------------------------------
+4) İNTERNETE ÜCRETSİZ YÜKLEME (Netlify)
+------------------------------------------------------
+- netlify.com adresine gir, ücretsiz hesap aç.
+- "Add new site" > "Deploy manually" de.
+- BU KLASÖRÜ olduğu gibi sürükleyip bırak.
+- Sana bir web adresi verir (ör. pazarcik-menu.netlify.app).
+  -> İşte QR'a koyacağın adres bu.
+
+------------------------------------------------------
+5) QR KOD OLUŞTURMA
+------------------------------------------------------
+A) MENÜ QR'ı:
+   - Bir QR sitesine (ör. qr-code-generator.com) git.
+   - Netlify adresini yaz, QR'ı indir, masalara bas.
+
+B) WiFi'a OTOMATİK BAĞLANMA QR'ı:
+   - QR içeriği şu formatta olmalı:
+       WIFI:T:WPA;S:AĞ_ADI;P:ŞİFRE;;
+     (AĞ_ADI = restoran WiFi adı, ŞİFRE = WiFi şifresi)
+   - Müşteri bu QR'ı okutunca şifre yazmadan WiFi'a bağlanır,
+     sonra menü QR'ını okutup menüyü açar.
+
+------------------------------------------------------
+DİLLER: Türkçe + Arapça + İngilizce (üstteki düğmelerden)
+TEMA:   Orman & dere kenarı (yeşil + ahşap + su tonları)

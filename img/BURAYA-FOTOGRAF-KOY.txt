@@ -1,0 +1,18 @@
+FOTOĞRAFLARI BURAYA KOY
+========================
+
+Telefonundan/bilgisayarından şu 2 fotoğrafı bu klasöre,
+TAM OLARAK şu isimlerle kaydet (küçük harf, .jpg):
+
+1) hero.jpg   ->  Tesis / tabela fotoğrafı (dağ evi, PAZARCIK yazan)
+                  Kapakta (en üstte) görünecek.
+
+2) dere.jpg   ->  Dere fotoğrafı (köprü + akan su)
+                  En altta (footer) görünecek.
+
+(İstersen 3. fotoğrafı  manzara.jpg  olarak da koyabilirsin;
+ ileride galeri/arka plan için kullanırız.)
+
+NOT: Dosya adları birebir aynı olmalı. Kaydettikten sonra
+menüyü yenile (index.html'i tekrar aç) — fotoğraflar otomatik gelir.
+Henüz koymazsan menü yine çalışır, sadece yeşil zemin görünür.
