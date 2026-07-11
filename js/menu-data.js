@@ -38,6 +38,8 @@ const MENU = {
       gallery: { tr: "Galeri", ar: "المعرض",  en: "Gallery" }
     },
     seasons: {
+      dishes: { tr: "🍽️ Lezzetlerimiz", ar: "🍽️ أطباقنا",     en: "🍽️ Our Dishes" },
+      meat:   { tr: "🥩 Taze Etimiz",   ar: "🥩 لحمنا الطازج", en: "🥩 Our Fresh Meat" },
       winter: { tr: "❄️ Kış", ar: "❄️ الشتاء", en: "❄️ Winter" },
       summer: { tr: "☀️ Yaz", ar: "☀️ الصيف",  en: "☀️ Summer" }
     },
@@ -76,6 +78,19 @@ const MENU = {
              aşağıdaki üç satırı değiştir. */
           name: { tr: "Alabalık", ar: "سمك مشوي (تراوت)", en: "Grilled Trout" },
           prices: [ { label: L_PORTION, value: 600 } ]
+        }
+      ]
+    },
+
+    /* ----------------- EKMEK & KETE ----------------- */
+    {
+      icon: "🥖",
+      name: { tr: "Ekmek & Kete", ar: "الخبز والكيته", en: "Bread & Kete" },
+      items: [
+        {
+          name: { tr: "Tandır Ketesi", ar: "كيته التنور", en: "Tandır Kete (Pastry)" },
+          desc: { tr: "Tanesi", ar: "للقطعة الواحدة", en: "Per piece" },
+          prices: [ { value: 75 } ]
         }
       ]
     },
@@ -183,5 +198,26 @@ const GALLERY = [
   { src: "manzara.jpeg",   season: "summer", cap: { tr: "Yeşil vadi",       ar: "الوادي الأخضر",   en: "Green valley" } },
   { src: "dere.jpeg",      season: "summer", cap: { tr: "Dere kenarı",      ar: "على ضفة النهر",   en: "By the stream" } },
   { src: "manzara4.jpeg",  season: "summer", cap: { tr: "Kuş bakışı",       ar: "منظر علوي",       en: "Aerial view" } },
-  { src: "ic-mekan.jpeg",  season: "summer", cap: { tr: "Sıcak salonumuz",  ar: "صالتنا الدافئة",  en: "Our cozy hall" } }
+  { src: "ic-mekan.jpeg",  season: "summer", cap: { tr: "Sıcak salonumuz",  ar: "صالتنا الدافئة",  en: "Our cozy hall" } },
+
+  /* 🍽️ LEZZETLERİMİZ (yemekler) */
+  { src: "dish-izgara-kuzu.jpeg",    season: "dishes", cap: { tr: "Izgara Kuzu Eti",    ar: "لحم خروف مشوي",   en: "Grilled Lamb" } },
+  { src: "dish-alabalik-tava.jpeg",  season: "dishes", cap: { tr: "Tavada Alabalık",    ar: "تراوت مقلي",      en: "Pan-fried Trout" } },
+  { src: "dish-alabalik.jpeg",       season: "dishes", cap: { tr: "Alabalık",           ar: "سمك التراوت",     en: "Trout" } },
+  { src: "dish-alabalik-guvec.jpeg", season: "dishes", cap: { tr: "Güveçte Alabalık",   ar: "تراوت بالطاجن",   en: "Trout in Clay Pot" } },
+  { src: "dish-sac-kavurma.jpeg",    season: "dishes", cap: { tr: "Sac Kavurma",        ar: "قاورمة الصاج",    en: "Sac Kavurma" } },
+  { src: "dish-sac-kavurma-2.jpeg",  season: "dishes", cap: { tr: "Sac Kavurma & Pilav", ar: "قاورمة مع الأرز", en: "Sac Kavurma & Rice" } },
+  { src: "dish-kuymak.jpeg",         season: "dishes", cap: { tr: "Kuymak (Muhlama)",   ar: "مهلمة",           en: "Kuymak (Muhlama)" } },
+  { src: "dish-kete.jpeg",           season: "dishes", cap: { tr: "Tandır Ketesi",      ar: "كيته التنور",     en: "Tandır Kete" } },
+  { src: "dish-baklava.jpeg",        season: "dishes", cap: { tr: "Ev Baklavası",       ar: "بقلاوة بيتية",    en: "Homemade Baklava" } },
+
+  /* 🥩 TAZE ETİMİZ */
+  { src: "et-taze-1.jpeg", season: "meat", cap: { tr: "Taze Kuzu Eti", ar: "لحم خروف طازج", en: "Fresh Lamb" } },
+  { src: "et-taze-2.jpeg", season: "meat", cap: { tr: "Taze Kuzu Eti", ar: "لحم خروف طازج", en: "Fresh Lamb" } },
+  { src: "et-taze-3.jpeg", season: "meat", cap: { tr: "Taze Kuzu Eti", ar: "لحم خروف طازج", en: "Fresh Lamb" } },
+  { src: "et-taze-4.jpeg", season: "meat", cap: { tr: "Taze Kuzu Eti", ar: "لحم خروف طازج", en: "Fresh Lamb" } },
+
+  /* Yeni manzaralar */
+  { src: "manzara-y1.jpeg", season: "summer", cap: { tr: "Vadiden görünüm", ar: "منظر من الوادي", en: "Valley view" } },
+  { src: "manzara-y2.jpeg", season: "winter", cap: { tr: "Karlı gece",      ar: "ليلة ثلجية",     en: "Snowy night" } }
 ];

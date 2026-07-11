@@ -76,7 +76,7 @@
   function renderGallery() {
     var g = document.getElementById("gallery");
     g.innerHTML = "";
-    var order = ["winter", "summer"];
+    var order = ["dishes", "winter", "summer", "meat"];
 
     order.forEach(function (season) {
       var items = GALLERY.filter(function (x) { return x.season === season; });
