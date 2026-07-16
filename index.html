@@ -8,6 +8,17 @@
   <meta name="theme-color" content="#161616">
   <link rel="manifest" href="manifest.webmanifest">
   <link rel="stylesheet" href="css/style.css">
+  <script>
+    /* Yeni sürüm yayınlanınca sayfayı bir kez otomatik yenile — müşteri hiçbir şey yapmasın */
+    if ("serviceWorker" in navigator) {
+      var _pzHadCtrl = !!navigator.serviceWorker.controller, _pzReloaded = false;
+      navigator.serviceWorker.addEventListener("controllerchange", function () {
+        if (_pzReloaded || !_pzHadCtrl) return;
+        _pzReloaded = true;
+        window.location.reload();
+      });
+    }
+  </script>
 </head>
 <body>
   <div class="app">
