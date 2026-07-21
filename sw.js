@@ -5,7 +5,7 @@
    - Görseller (.jpeg/.png...)   → ÖNCE ÖNBELLEK (hızlı + offline). Yeni görseller
      yeni dosya adı taşıdığı için önbellekte olmaz → otomatik internetten çekilir.
    Böylece güncelleme yaptığımızda müşteri online'ken ANINDA yeni sürümü görür. */
-var CACHE = "pazarcik-menu-v6";
+var CACHE = "pazarcik-menu-v7";
 var ASSETS = [
   "./",
   "./index.html",
@@ -13,6 +13,7 @@ var ASSETS = [
   "./js/menu-data.js",
   "./js/app.js",
   "./data/menu.json",
+  "./data/galeri.json",
   "./manifest.webmanifest"
 ];
 

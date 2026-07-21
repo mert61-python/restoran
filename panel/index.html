@@ -139,6 +139,35 @@
                 box-shadow:0 8px 22px rgba(0,0,0,.2)}
     .surum{text-align:center;font-size:13px;color:var(--soluk);margin:6px 0 0}
 
+    /* --- GALERİ sekmesi --- */
+    .g-ekle{width:100%;padding:20px;border:2px dashed var(--yesil2);border-radius:18px;background:#F1F6F2;
+            color:var(--yesil);font-size:17px;font-weight:800;cursor:pointer;margin:14px 0 4px}
+    .g-ekle:active{background:#E4EEE7}
+    .g-form{background:var(--kart);border:2px solid var(--altin);border-radius:18px;padding:16px;
+            margin:12px 0;box-shadow:var(--golge);display:none}
+    .g-form.acik{display:block}
+    .g-onizle{width:100%;max-height:240px;object-fit:contain;border-radius:12px;background:#efe9db;margin-bottom:10px}
+    .g-bilgi{font-size:13px;color:var(--soluk);text-align:center;margin:0 0 10px}
+    .g-form label.et{display:block;font-size:14px;font-weight:700;color:var(--soluk);margin:12px 0 5px}
+    .g-form select,.g-form input[type=text]{width:100%;padding:14px;font-size:17px;border:2px solid var(--cizgi);
+            border-radius:12px;background:#fff;font-family:inherit}
+    .g-form select:focus,.g-form input:focus{outline:none;border-color:var(--yesil2)}
+    .g-form .dug{display:flex;gap:10px;margin-top:16px}
+    .g-form .dug button{flex:1;padding:16px;border:0;border-radius:14px;font-size:17px;font-weight:800;cursor:pointer}
+    #gVazgec{background:#fff;border:2px solid var(--cizgi);color:var(--soluk)}
+    #gYukle{background:var(--yesil2);color:#fff}
+    #gYukle:disabled{background:#c9c2b4}
+
+    .g-izgara{display:grid;grid-template-columns:repeat(2,1fr);gap:10px;margin-bottom:18px}
+    .g-kart{position:relative;border-radius:14px;overflow:hidden;background:#e6e0d2;aspect-ratio:4/3;
+            box-shadow:var(--golge)}
+    .g-kart img{width:100%;height:100%;object-fit:cover;display:block}
+    .g-kart .yazi{position:absolute;left:0;right:0;bottom:0;padding:18px 8px 6px;font-size:12px;font-weight:700;
+                  color:#fff;background:linear-gradient(transparent,rgba(0,0,0,.78))}
+    .g-sil{position:absolute;top:6px;right:6px;width:38px;height:38px;border:0;border-radius:50%;
+           background:rgba(214,46,34,.93);color:#fff;font-size:18px;cursor:pointer;line-height:1;
+           box-shadow:0 2px 8px rgba(0,0,0,.35)}
+
     /* ---------------- KAYDET ÇUBUĞU ---------------- */
     .altbar{position:fixed;left:0;right:0;bottom:calc(var(--tabbar) + env(safe-area-inset-bottom));z-index:45;
             background:rgba(255,255,255,.97);border-top:1px solid var(--cizgi);
@@ -254,7 +283,39 @@
       <div id="fiyatListe"></div>
     </div>
 
-    <!-- SEKME 3: BİLGİ -->
+    <!-- SEKME 3: GALERİ -->
+    <div class="sayfa" id="s-galeri">
+      <div class="bilgi-serit">
+        <b>Menü galerisi</b><br>
+        Yemek veya manzara fotoğrafı ekle. Fotoğraf otomatik küçültülür, hızlı yüklenir.
+      </div>
+
+      <button class="g-ekle" id="gEkleBtn" type="button">📸 Fotoğraf Ekle</button>
+      <input type="file" id="gDosya" accept="image/*" hidden>
+
+      <div class="g-form" id="gForm">
+        <img class="g-onizle" id="gOnizle" alt="">
+        <p class="g-bilgi" id="gBoyut"></p>
+        <label class="et" for="gBolum">Hangi bölüme eklensin?</label>
+        <select id="gBolum">
+          <option value="dishes">🍽️ Lezzetlerimiz (yemekler)</option>
+          <option value="winter">❄️ Kış</option>
+          <option value="summer">☀️ Yaz</option>
+          <option value="meat">🥩 Taze Etimiz</option>
+        </select>
+        <label class="et" for="gAciklama">Açıklama (kısa)</label>
+        <input type="text" id="gAciklama" maxlength="60" placeholder="Örn: Izgara Alabalık">
+        <div class="dug">
+          <button id="gVazgec" type="button">Vazgeç</button>
+          <button id="gYukle" type="button">Yükle</button>
+        </div>
+      </div>
+
+      <div id="gDurum" class="durum"></div>
+      <div id="gListe"></div>
+    </div>
+
+    <!-- SEKME 4: BİLGİ -->
     <div class="sayfa" id="s-bilgi">
       <img class="bilgi-logo" src="../img/logo.jpeg" alt="">
       <div class="bkart">
@@ -298,6 +359,9 @@
       <button type="button" data-s="fiyat">
         <span class="ikon">💰</span><span>Fiyatlar</span><span class="nokta" id="noktaFiyat"></span>
       </button>
+      <button type="button" data-s="galeri">
+        <span class="ikon">📷</span><span>Galeri</span>
+      </button>
       <button type="button" data-s="bilgi">
         <span class="ikon">ℹ️</span><span>Bilgi</span>
       </button>
@@ -329,7 +393,7 @@
     var sifre = "";
     var aktifSekme = "bugun";
 
-    var BASLIK = { bugun: "Bugün", fiyat: "Menü Fiyatları", bilgi: "Bilgi" };
+    var BASLIK = { bugun: "Bugün", fiyat: "Menü Fiyatları", galeri: "Galeri", bilgi: "Bilgi" };
 
     function kopya(o) { return JSON.parse(JSON.stringify(o)); }
     function adim(v) { return v >= 1000 ? 50 : (v >= 100 ? 10 : 5); }
@@ -549,7 +613,7 @@
     /* ---------- sekmeler ---------- */
     function sekmeAc(ad) {
       aktifSekme = ad;
-      ["bugun", "fiyat", "bilgi"].forEach(function (s) {
+      ["bugun", "fiyat", "galeri", "bilgi"].forEach(function (s) {
         $("s-" + s).classList.toggle("acik", s === ad);
       });
       var bt = document.querySelectorAll("#tabbar button");
@@ -572,6 +636,7 @@
       $("tabbar").classList.add("acik");
       $("cikis").hidden = false;
       yukle().then(function () { ciz(); sekmeAc("bugun"); });
+      galeriYukle().then(galeriCiz);
     }
     $("girisBtn").addEventListener("click", function () {
       var s = $("sifre").value;
@@ -647,6 +712,150 @@
         .catch(function () { durum($("durum"), "⚠️ İnternete bağlanılamadı. WiFi'ı kontrol edip tekrar dene.", "hata"); })
         .then(function () { btn.disabled = false; btn.textContent = eski; sayaclar(); });
     });
+
+    /* ================= GALERİ ================= */
+    var galeri = [];
+    var secilenB64 = null;
+    var BOLUM_AD = { dishes: "🍽️ Lezzetlerimiz", winter: "❄️ Kış", summer: "☀️ Yaz", meat: "🥩 Taze Etimiz" };
+
+    function galeriYukle() {
+      return fetch("../data/galeri.json", { cache: "no-cache" })
+        .then(function (r) { return r.ok ? r.json() : null; })
+        .then(function (d) { galeri = (d && Array.isArray(d.fotograflar)) ? d.fotograflar : []; })
+        .catch(function () { galeri = []; });
+    }
+
+    function galeriCiz() {
+      var kap = $("gListe"); kap.innerHTML = "";
+      ["dishes", "winter", "summer", "meat"].forEach(function (b) {
+        var grup = galeri.filter(function (x) { return x && x.season === b; });
+        if (!grup.length) return;
+        var bas = document.createElement("div");
+        bas.className = "kat-bas";
+        bas.textContent = BOLUM_AD[b] + " · " + grup.length;
+        kap.appendChild(bas);
+
+        var iz = document.createElement("div"); iz.className = "g-izgara";
+        grup.forEach(function (f) {
+          var k = document.createElement("div"); k.className = "g-kart";
+          var im = document.createElement("img");
+          im.src = "../img/" + f.src; im.loading = "lazy"; im.alt = "";
+          var yz = document.createElement("div"); yz.className = "yazi";
+          yz.textContent = (f.cap && f.cap.tr) ? f.cap.tr : f.src;
+          var sil = document.createElement("button");
+          sil.type = "button"; sil.className = "g-sil"; sil.title = "Galeriden çıkar";
+          sil.textContent = "🗑";
+          sil.addEventListener("click", function () { fotoSil(f); });
+          k.appendChild(im); k.appendChild(yz); k.appendChild(sil);
+          iz.appendChild(k);
+        });
+        kap.appendChild(iz);
+      });
+      if (!galeri.length) {
+        var bos = document.createElement("p");
+        bos.style.cssText = "text-align:center;color:#6B6053;font-size:15px;margin:22px 0";
+        bos.textContent = "Henüz fotoğraf yok.";
+        kap.appendChild(bos);
+      }
+    }
+
+    /* Fotoğrafı telefonda küçült (sunucu sınırı + hız için şart) */
+    function kucult(dosya, enBuyuk, kalite) {
+      return new Promise(function (coz, hata) {
+        var url = URL.createObjectURL(dosya);
+        var im = new Image();
+        im.onload = function () {
+          var w = im.naturalWidth || im.width, h = im.naturalHeight || im.height;
+          var b = Math.max(w, h);
+          if (b > enBuyuk) { var k = enBuyuk / b; w = Math.round(w * k); h = Math.round(h * k); }
+          var c = document.createElement("canvas"); c.width = w; c.height = h;
+          c.getContext("2d").drawImage(im, 0, 0, w, h);
+          URL.revokeObjectURL(url);
+          try { coz(c.toDataURL("image/jpeg", kalite)); } catch (e) { hata(e); }
+        };
+        im.onerror = function () { URL.revokeObjectURL(url); hata(new Error("okunamadi")); };
+        im.src = url;
+      });
+    }
+
+    $("gEkleBtn").addEventListener("click", function () { $("gDosya").click(); });
+
+    $("gDosya").addEventListener("change", function () {
+      var d = this.files && this.files[0];
+      this.value = "";
+      if (!d) return;
+      durum($("gDurum"), "Fotoğraf hazırlanıyor…", "bilgi");
+      kucult(d, 1600, 0.82).then(function (dataUrl) {
+        secilenB64 = dataUrl;
+        $("gOnizle").src = dataUrl;
+        var kb = Math.round((dataUrl.length * 3 / 4) / 1024);
+        $("gBoyut").textContent = "Küçültüldü · yaklaşık " + kb + " KB";
+        $("gForm").classList.add("acik");
+        $("gDurum").className = "durum";
+        $("gForm").scrollIntoView({ behavior: "smooth", block: "center" });
+      }).catch(function () {
+        durum($("gDurum"), "⚠️ Fotoğraf okunamadı. Başka bir fotoğraf dene.", "hata");
+      });
+    });
+
+    $("gVazgec").addEventListener("click", function () {
+      secilenB64 = null;
+      $("gForm").classList.remove("acik");
+      $("gAciklama").value = "";
+      $("gDurum").className = "durum";
+    });
+
+    $("gYukle").addEventListener("click", function () {
+      if (!secilenB64) return;
+      var btn = this; btn.disabled = true;
+      var e0 = btn.textContent; btn.textContent = "Yükleniyor…";
+      durum($("gDurum"), "Yükleniyor, lütfen bekle…", "bilgi");
+      var bolum = $("gBolum").value;
+      var aciklama = $("gAciklama").value;
+
+      fetch("/.netlify/functions/galeri-kaydet", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ sifre: sifre, islem: "ekle", base64: secilenB64, bolum: bolum, aciklama: aciklama })
+      })
+        .then(function (r) { return r.json().then(function (j) { return { ok: r.ok, j: j }; }); })
+        .then(function (res) {
+          if (res.ok && res.j && res.j.ok) {
+            durum($("gDurum"), "✅ " + res.j.mesaj, "ok");
+            galeri.push({ src: res.j.src, season: bolum, cap: { tr: aciklama || "Fotoğraf" } });
+            galeriCiz();
+            secilenB64 = null;
+            $("gForm").classList.remove("acik");
+            $("gAciklama").value = "";
+          } else {
+            durum($("gDurum"), "⚠️ " + ((res.j && res.j.mesaj) || "Yüklenemedi."), "hata");
+          }
+        })
+        .catch(function () { durum($("gDurum"), "⚠️ İnternete bağlanılamadı.", "hata"); })
+        .then(function () { btn.disabled = false; btn.textContent = e0; });
+    });
+
+    function fotoSil(f) {
+      var ad = (f.cap && f.cap.tr) ? f.cap.tr : f.src;
+      if (!confirm("“" + ad + "” galeriden çıkarılsın mı?\n\nFotoğraf dosyası silinmez, sadece galeride görünmez.")) return;
+      durum($("gDurum"), "Çıkarılıyor…", "bilgi");
+      fetch("/.netlify/functions/galeri-kaydet", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ sifre: sifre, islem: "sil", src: f.src })
+      })
+        .then(function (r) { return r.json().then(function (j) { return { ok: r.ok, j: j }; }); })
+        .then(function (res) {
+          if (res.ok && res.j && res.j.ok) {
+            durum($("gDurum"), "✅ " + res.j.mesaj, "ok");
+            galeri = galeri.filter(function (x) { return x.src !== f.src; });
+            galeriCiz();
+          } else {
+            durum($("gDurum"), "⚠️ " + ((res.j && res.j.mesaj) || "Silinemedi."), "hata");
+          }
+        })
+        .catch(function () { durum($("gDurum"), "⚠️ İnternete bağlanılamadı.", "hata"); });
+    }
 
     /* ---------- açılış ---------- */
     var kayitli = null;

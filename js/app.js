@@ -12,6 +12,10 @@
      data/menu.json okunamazsa menu-data.js'teki varsayılan fiyatlar kullanılır. */
   var OV = { fiyatlar: {}, tukendi: [] };
 
+  /* Galeri listesi: panelden yönetilir (data/galeri.json).
+     Okunamazsa menu-data.js'teki GALLERY listesi kullanılır. */
+  var GAL = (typeof GALLERY !== "undefined" && GALLERY) ? GALLERY : [];
+
   function t(o) { if (!o) return ""; return o[lang] || o.tr || ""; }
   function money(v) { return v + " " + MENU.ui.currency; }
   function el(tag, cls) { var e = document.createElement(tag); if (cls) e.className = cls; return e; }
@@ -96,7 +100,7 @@
     var order = ["dishes", "winter", "summer", "meat"];
 
     order.forEach(function (season) {
-      var items = GALLERY.filter(function (x) { return x.season === season; });
+      var items = GAL.filter(function (x) { return x && x.season === season; });
       if (!items.length) return;
 
       var h = el("h2", "gallery-season");
@@ -189,7 +193,7 @@
   /* Önce panelden gelen güncel fiyat/stok verisini oku, sonra çiz.
      Veri gelmezse (internet yok vb.) varsayılan fiyatlarla açılır. */
   if (typeof fetch === "function") {
-    fetch("data/menu.json", { cache: "no-cache" })
+    var pFiyat = fetch("data/menu.json", { cache: "no-cache" })
       .then(function (r) { return r.ok ? r.json() : null; })
       .then(function (d) {
         if (d && typeof d === "object") {
@@ -197,8 +201,16 @@
           OV.tukendi = Array.isArray(d.tukendi) ? d.tukendi : [];
         }
       })
-      .catch(function () {})
-      .then(basla);
+      .catch(function () {});
+
+    var pGaleri = fetch("data/galeri.json", { cache: "no-cache" })
+      .then(function (r) { return r.ok ? r.json() : null; })
+      .then(function (d) {
+        if (d && Array.isArray(d.fotograflar) && d.fotograflar.length) GAL = d.fotograflar;
+      })
+      .catch(function () {});
+
+    Promise.all([pFiyat, pGaleri]).then(basla, basla);
   } else {
     basla();
   }
