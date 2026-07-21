@@ -53,6 +53,8 @@
         if (lang !== "tr") {
           var trn = el("div", "item-name-tr");
           trn.textContent = "🇹🇷 " + (it.name.tr || "");
+          trn.lang = "tr";
+          trn.setAttribute("translate", "no"); // tarayıcı çevirisi bunu Arapçaya çevirmesin
           main.appendChild(trn);
         }
         if (it.desc) { var d = el("div", "item-desc"); d.textContent = t(it.desc); main.appendChild(d); }
