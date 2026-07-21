@@ -1,0 +1,26 @@
+{
+  "guncelleme": "2026-07-21T00:00:00.000Z",
+  "fiyatlar": {
+    "Köfte": [400, 1400],
+    "Et (Kuzu)": [700, 1400],
+    "Tavuk": [300, 850],
+    "Sac Kavurma": [500],
+    "Alabalık": [600],
+    "Tandır Ketesi": [75],
+    "Tek Kişilik Kahvaltı": [250],
+    "Kuymak": [200],
+    "Kaşarlı Yumurta": [150],
+    "Çorba": [100],
+    "Haşlama (Kuzu Eti)": [300],
+    "Sütlaç": [125],
+    "Baklava": [125],
+    "Ayran": [30],
+    "Şalgam": [50],
+    "Kola": [60],
+    "Fanta": [60],
+    "Soda": [25],
+    "Meyve Suyu": [50],
+    "Su": [10]
+  },
+  "tukendi": []
+}

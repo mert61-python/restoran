@@ -2,3 +2,7 @@
 [build]
   publish = "."
   command = ""
+
+# Yönetim panelinin kaydetme fonksiyonu (şifre + GitHub anahtarı burada, sunucuda)
+[functions]
+  directory = "netlify/functions"

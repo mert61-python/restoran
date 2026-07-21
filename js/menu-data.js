@@ -43,6 +43,7 @@ const MENU = {
       winter: { tr: "❄️ Kış", ar: "❄️ الشتاء", en: "❄️ Winter" },
       summer: { tr: "☀️ Yaz", ar: "☀️ الصيف",  en: "☀️ Summer" }
     },
+    tukendi: { tr: "Bugün yok", ar: "نفد اليوم", en: "Sold out" },
     footer: {
       tr: "Afiyet olsun 🍃 · Pazarcık Alabalık Dinlenme Tesisleri",
       ar: "بالهناء والعافية 🍃",

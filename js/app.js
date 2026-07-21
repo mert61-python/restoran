@@ -8,6 +8,10 @@
   var lang = localStorage.getItem("pz_lang") || "tr";
   if (LANGS.indexOf(lang) === -1) lang = "tr";
 
+  /* Yönetim panelinden (admin.html) güncellenen canlı fiyat/stok verisi.
+     data/menu.json okunamazsa menu-data.js'teki varsayılan fiyatlar kullanılır. */
+  var OV = { fiyatlar: {}, tukendi: [] };
+
   function t(o) { if (!o) return ""; return o[lang] || o.tr || ""; }
   function money(v) { return v + " " + MENU.ui.currency; }
   function el(tag, cls) { var e = document.createElement(tag); if (cls) e.className = cls; return e; }
@@ -59,13 +63,24 @@
         }
         if (it.desc) { var d = el("div", "item-desc"); d.textContent = t(it.desc); main.appendChild(d); }
 
+        var ovFiyat = OV.fiyatlar[it.name.tr];
+        var tukendi = OV.tukendi.indexOf(it.name.tr) !== -1;
+        if (tukendi) item.classList.add("tukendi");
+
         var prices = el("div", "item-prices" + (it.prices.length > 1 ? " multi" : ""));
-        it.prices.forEach(function (p) {
-          var row = el("div", "price-row");
-          if (p.label) { var lbl = el("span", "price-label"); lbl.textContent = t(p.label); row.appendChild(lbl); }
-          var val = el("span", "price-value"); val.textContent = money(p.value); row.appendChild(val);
-          prices.appendChild(row);
-        });
+        if (tukendi) {
+          var so = el("span", "sold-out");
+          so.textContent = t(MENU.ui.tukendi);
+          prices.appendChild(so);
+        } else {
+          it.prices.forEach(function (p, pi) {
+            var row = el("div", "price-row");
+            if (p.label) { var lbl = el("span", "price-label"); lbl.textContent = t(p.label); row.appendChild(lbl); }
+            var deger = (ovFiyat && typeof ovFiyat[pi] === "number") ? ovFiyat[pi] : p.value;
+            var val = el("span", "price-value"); val.textContent = money(deger); row.appendChild(val);
+            prices.appendChild(row);
+          });
+        }
 
         item.appendChild(main); item.appendChild(prices);
         sec.appendChild(item);
@@ -156,8 +171,24 @@
     if (lbOpen) { closeLightbox(); }
   });
 
-  render();
-  showTab("menu");
+  function basla() { render(); showTab("menu"); }
+
+  /* Önce panelden gelen güncel fiyat/stok verisini oku, sonra çiz.
+     Veri gelmezse (internet yok vb.) varsayılan fiyatlarla açılır. */
+  if (typeof fetch === "function") {
+    fetch("data/menu.json", { cache: "no-cache" })
+      .then(function (r) { return r.ok ? r.json() : null; })
+      .then(function (d) {
+        if (d && typeof d === "object") {
+          OV.fiyatlar = d.fiyatlar || {};
+          OV.tukendi = Array.isArray(d.tukendi) ? d.tukendi : [];
+        }
+      })
+      .catch(function () {})
+      .then(basla);
+  } else {
+    basla();
+  }
 
   /* Offline önbellek — sadece internete yüklenince (http/https) çalışır */
   if ("serviceWorker" in navigator &&
