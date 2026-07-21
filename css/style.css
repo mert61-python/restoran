@@ -49,6 +49,50 @@ body {
     radial-gradient(circle at 92% 22%, rgba(74,107,58,.08), transparent 48%);
 }
 
+/* ---------------- AÇILIŞ EKRANI (LOGO) ---------------- */
+body.intro-acik { overflow: hidden; }
+.intro {
+  position: fixed;
+  inset: 0;
+  z-index: 200;
+  background: radial-gradient(circle at 50% 38%, #23201c 0%, #121110 70%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px 18px calc(20px + env(safe-area-inset-bottom));
+  transition: opacity .38s ease;
+}
+.intro.kapali { opacity: 0; pointer-events: none; }
+.intro-ic { width: 100%; max-width: 460px; text-align: center; }
+.intro-logo {
+  display: block;
+  width: 100%;
+  max-width: min(84vw, 400px);
+  max-height: 62vh;
+  height: auto;
+  object-fit: contain;
+  margin: 0 auto;
+  border-radius: 16px;
+  box-shadow: 0 14px 46px rgba(0,0,0,.65);
+}
+.intro-btn {
+  margin-top: clamp(20px, 4.5vh, 34px);
+  width: 100%;
+  max-width: 340px;
+  padding: 16px 22px;
+  border: 0;
+  border-radius: 16px;
+  background: var(--brand-red);
+  color: #fff;
+  cursor: pointer;
+  box-shadow: 0 8px 24px rgba(214,46,34,.42);
+  font: inherit;
+  transition: transform .12s ease;
+}
+.intro-btn:active { transform: translateY(2px); }
+.intro-btn .ib1 { display: block; font-size: clamp(17px, 4.6vw, 20px); font-weight: 800; letter-spacing: .6px; }
+.intro-btn .ib2 { display: block; font-size: 12.5px; font-weight: 600; opacity: .9; margin-top: 3px; }
+
 /* ---------------- KAPAK (HERO) ---------------- */
 .hero {
   position: relative;

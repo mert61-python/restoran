@@ -32,6 +32,11 @@
     header .in{max-width:600px;margin:0 auto;display:flex;align-items:center;justify-content:space-between;gap:12px}
     header h1{margin:0;font-size:clamp(19px,5vw,23px);font-weight:800;letter-spacing:.2px}
     header .alt{margin:2px 0 0;font-size:13px;color:#cfe0d4}
+    .marka{display:flex;align-items:center;gap:11px;min-width:0}
+    .marka .logo{width:46px;height:46px;flex:0 0 auto;border-radius:11px;object-fit:cover;
+                 box-shadow:0 2px 10px rgba(0,0,0,.45);border:1.5px solid rgba(255,255,255,.18)}
+    .giris-logo{display:block;width:min(64vw,240px);height:auto;margin:0 auto 10px;border-radius:16px;
+                box-shadow:0 10px 30px rgba(0,0,0,.28)}
     .cikis{background:transparent;border:1.5px solid rgba(255,255,255,.45);color:#fff;
            border-radius:999px;padding:8px 14px;font-size:14px;font-weight:700;cursor:pointer}
 
@@ -145,9 +150,12 @@
 <body>
   <header>
     <div class="in">
-      <div>
-        <h1>💰 Menü Fiyatları</h1>
-        <p class="alt">Pazarcık Alabalık</p>
+      <div class="marka">
+        <img class="logo" src="../img/logo.jpeg" alt="">
+        <div>
+          <h1>Menü Fiyatları</h1>
+          <p class="alt">Pazarcık Alabalık</p>
+        </div>
       </div>
       <button class="cikis" id="cikis" type="button" hidden>Çıkış</button>
     </div>
@@ -156,7 +164,7 @@
   <!-- GİRİŞ -->
   <section id="giris" class="kap acik">
     <div class="giris-kart">
-      <div class="amblem">🔐</div>
+      <img class="giris-logo" src="../img/logo.jpeg" alt="Pazarcık Alabalık">
       <h2>Şifreni gir</h2>
       <p>Fiyatları değiştirmek için şifre gerekir.</p>
       <input id="sifre" type="password" inputmode="text" autocomplete="current-password" placeholder="Şifre">

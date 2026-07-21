@@ -171,6 +171,19 @@
     if (lbOpen) { closeLightbox(); }
   });
 
+  /* ---------- AÇILIŞ EKRANI (logo → menü) ---------- */
+  (function () {
+    var intro = document.getElementById("intro");
+    var btn = document.getElementById("introBtn");
+    if (!intro || !btn) return;
+    document.body.classList.add("intro-acik");
+    btn.addEventListener("click", function () {
+      intro.classList.add("kapali");
+      document.body.classList.remove("intro-acik");
+      setTimeout(function () { intro.hidden = true; }, 420);
+    });
+  })();
+
   function basla() { render(); showTab("menu"); }
 
   /* Önce panelden gelen güncel fiyat/stok verisini oku, sonra çiz.
