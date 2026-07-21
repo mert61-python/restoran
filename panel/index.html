@@ -167,6 +167,9 @@
     .g-sil{position:absolute;top:6px;right:6px;width:38px;height:38px;border:0;border-radius:50%;
            background:rgba(214,46,34,.93);color:#fff;font-size:18px;cursor:pointer;line-height:1;
            box-shadow:0 2px 8px rgba(0,0,0,.35)}
+    .g-bekliyor{position:absolute;top:7px;left:7px;background:rgba(184,134,11,.95);color:#fff;
+                font-size:11px;font-weight:800;padding:4px 9px;border-radius:999px;
+                box-shadow:0 2px 8px rgba(0,0,0,.3)}
 
     /* ---------------- KAYDET ÇUBUĞU ---------------- */
     .altbar{position:fixed;left:0;right:0;bottom:calc(var(--tabbar) + env(safe-area-inset-bottom));z-index:45;
@@ -739,7 +742,9 @@
         grup.forEach(function (f) {
           var k = document.createElement("div"); k.className = "g-kart";
           var im = document.createElement("img");
-          im.src = "../img/" + f.src; im.loading = "lazy"; im.alt = "";
+          // Yeni yüklenen foto henüz yayına girmemiş olabilir → telefondaki kopyayı göster
+          im.src = f.yerel ? f.yerel : ("../img/" + f.src);
+          im.loading = "lazy"; im.alt = "";
           var yz = document.createElement("div"); yz.className = "yazi";
           yz.textContent = (f.cap && f.cap.tr) ? f.cap.tr : f.src;
           var sil = document.createElement("button");
@@ -747,6 +752,12 @@
           sil.textContent = "🗑";
           sil.addEventListener("click", function () { fotoSil(f); });
           k.appendChild(im); k.appendChild(yz); k.appendChild(sil);
+          if (f.yerel) {
+            var bek = document.createElement("span");
+            bek.className = "g-bekliyor";
+            bek.textContent = "yayınlanıyor…";
+            k.appendChild(bek);
+          }
           iz.appendChild(k);
         });
         kap.appendChild(iz);
@@ -812,17 +823,18 @@
       durum($("gDurum"), "Yükleniyor, lütfen bekle…", "bilgi");
       var bolum = $("gBolum").value;
       var aciklama = $("gAciklama").value;
+      var b64 = secilenB64;
 
       fetch("/.netlify/functions/galeri-kaydet", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ sifre: sifre, islem: "ekle", base64: secilenB64, bolum: bolum, aciklama: aciklama })
+        body: JSON.stringify({ sifre: sifre, islem: "ekle", base64: b64, bolum: bolum, aciklama: aciklama })
       })
         .then(function (r) { return r.json().then(function (j) { return { ok: r.ok, j: j }; }); })
         .then(function (res) {
           if (res.ok && res.j && res.j.ok) {
             durum($("gDurum"), "✅ " + res.j.mesaj, "ok");
-            galeri.push({ src: res.j.src, season: bolum, cap: { tr: aciklama || "Fotoğraf" } });
+            galeri.push({ src: res.j.src, season: bolum, cap: { tr: aciklama || "Fotoğraf" }, yerel: b64 });
             galeriCiz();
             secilenB64 = null;
             $("gForm").classList.remove("acik");

@@ -1,7 +1,7 @@
 /* Panel (Menü Fiyatları uygulaması) service worker
    - Kurulabilirlik (ana ekrana ekle) için gerekli
    - Strateji: ÖNCE İNTERNET (panel her zaman güncel olmalı), yoksa önbellek */
-var CACHE = "pz-panel-v1";
+var CACHE = "pz-panel-v2";
 var ASSETS = [
   "./",
   "./index.html",
@@ -39,8 +39,11 @@ self.addEventListener("fetch", function (e) {
 
   e.respondWith(
     fetch(e.request).then(function (resp) {
-      var kopya = resp.clone();
-      caches.open(CACHE).then(function (c) { c.put(e.request, kopya); });
+      // Sadece başarılı cevabı önbellekle (404 önbelleğe yapışmasın)
+      if (resp && resp.ok && resp.status === 200) {
+        var kopya = resp.clone();
+        caches.open(CACHE).then(function (c) { c.put(e.request, kopya); });
+      }
       return resp;
     }).catch(function () {
       return caches.match(e.request).then(function (r) { return r || caches.match("./index.html"); });

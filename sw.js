@@ -5,7 +5,7 @@
    - Görseller (.jpeg/.png...)   → ÖNCE ÖNBELLEK (hızlı + offline). Yeni görseller
      yeni dosya adı taşıdığı için önbellekte olmaz → otomatik internetten çekilir.
    Böylece güncelleme yaptığımızda müşteri online'ken ANINDA yeni sürümü görür. */
-var CACHE = "pazarcik-menu-v7";
+var CACHE = "pazarcik-menu-v8";
 var ASSETS = [
   "./",
   "./index.html",
@@ -37,16 +37,23 @@ self.addEventListener("fetch", function (e) {
   var url = new URL(e.request.url);
   var isImage = /\.(jpe?g|png|webp|gif|svg|ico|avif)$/i.test(url.pathname);
 
+  // ÖNEMLİ: Sadece BAŞARILI (200) cevaplar önbelleğe alınır.
+  // Aksi halde yeni yüklenen bir fotoğraf henüz yayına girmemişken dönen 404
+  // önbelleğe yapışır ve dosya sonradan gelse bile kırık görünür.
+  function onbellekle(istek, cevap) {
+    if (cevap && cevap.ok && cevap.status === 200) {
+      var kopya = cevap.clone();
+      caches.open(CACHE).then(function (c) { c.put(istek, kopya); });
+    }
+    return cevap;
+  }
+
   if (isImage) {
-    // Görseller: önce önbellek, yoksa internet (ve önbelleğe al).
+    // Görseller: önce önbellek, yoksa internet.
     e.respondWith(
       caches.match(e.request).then(function (cached) {
         if (cached) return cached;
-        return fetch(e.request).then(function (resp) {
-          var copy = resp.clone();
-          caches.open(CACHE).then(function (c) { c.put(e.request, copy); });
-          return resp;
-        });
+        return fetch(e.request).then(function (resp) { return onbellekle(e.request, resp); });
       })
     );
     return;
@@ -54,12 +61,9 @@ self.addEventListener("fetch", function (e) {
 
   // HTML / JS / CSS / manifest: ÖNCE İNTERNET, yoksa önbellek (offline yedek).
   e.respondWith(
-    fetch(e.request).then(function (resp) {
-      var copy = resp.clone();
-      caches.open(CACHE).then(function (c) { c.put(e.request, copy); });
-      return resp;
-    }).catch(function () {
-      return caches.match(e.request).then(function (r) { return r || caches.match("./index.html"); });
-    })
+    fetch(e.request).then(function (resp) { return onbellekle(e.request, resp); })
+      .catch(function () {
+        return caches.match(e.request).then(function (r) { return r || caches.match("./index.html"); });
+      })
   );
 });
