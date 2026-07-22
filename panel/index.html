@@ -109,7 +109,7 @@
 
     .tukendi-satir{display:flex;align-items:center;gap:12px;margin-top:4px;padding-top:12px;
                    border-top:1.5px dashed var(--cizgi)}
-    .anahtar{position:relative;flex:0 0 auto;width:64px;height:36px}
+    .anahtar{position:relative;flex:0 0 auto;width:64px;height:36px;display:inline-block;cursor:pointer}
     .anahtar input{opacity:0;width:0;height:0;position:absolute}
     .anahtar .kaydir{position:absolute;inset:0;background:#c9c2b4;border-radius:999px;transition:background .2s;cursor:pointer}
     .anahtar .kaydir::before{content:"";position:absolute;width:28px;height:28px;left:4px;top:4px;
@@ -324,7 +324,7 @@
       <div class="bkart">
         <h3>🍽️ Müşteri menüsü</h3>
         <p>Müşterilerin QR ile gördüğü menüyü aç, değişikliklerini kontrol et.</p>
-        <a class="baglanti" href="../" target="_blank" rel="noopener">Menüyü Aç</a>
+        <a class="baglanti" href="../" rel="noopener">Menüyü Aç</a>
       </div>
       <div class="bkart">
         <h3>❓ Nasıl çalışır?</h3>
@@ -338,7 +338,7 @@
         <p>Şifre bu telefonda hatırlanıyor. Telefonu başkasına verecekseniz çıkış yapın.</p>
         <a class="baglanti kirmizi" href="#" id="cikisBilgi">Çıkış Yap</a>
       </div>
-      <p class="surum">Menü Fiyat · sürüm 1.1</p>
+      <p class="surum">Menü Fiyat · sürüm 1.2</p>
     </div>
 
     <div id="durum" class="durum"></div>
@@ -483,7 +483,7 @@
           var satir = document.createElement("div");
           satir.className = "bsatir" + (yokMu(ad) ? " yok" : "");
 
-          var sw = document.createElement("span"); sw.className = "anahtar";
+          var sw = document.createElement("label"); sw.className = "anahtar";
           var cb = document.createElement("input");
           cb.type = "checkbox"; cb.checked = yokMu(ad);
           cb.id = "b-" + ad.replace(/\s/g, "");
@@ -495,6 +495,7 @@
 
           var fy = document.createElement("span");
           fy.className = "fy";
+          fy.id = "bfy-" + ad.replace(/\s/g, "");
           fy.textContent = deger(ad, 0, it) + " ₺";
 
           cb.addEventListener("change", function () {
@@ -563,6 +564,10 @@
               kutu.value = v;
               var s = adim(v);
               eksi.textContent = "−" + s; arti.textContent = "+" + s;
+              if (i === 0) {
+                var bfy = document.getElementById("bfy-" + ad.replace(/\s/g, ""));
+                if (bfy) bfy.textContent = v + " ₺";
+              }
               gorunum();
               sayaclar();
             }
@@ -581,7 +586,7 @@
           });
 
           var ts = document.createElement("div"); ts.className = "tukendi-satir";
-          var sw = document.createElement("span"); sw.className = "anahtar";
+          var sw = document.createElement("label"); sw.className = "anahtar";
           var cb = document.createElement("input");
           cb.type = "checkbox"; cb.id = "f-" + ki + "-" + ad.replace(/\s/g, ""); cb.checked = yokMu(ad);
           var kay = document.createElement("span"); kay.className = "kaydir";
@@ -834,8 +839,10 @@
         .then(function (res) {
           if (res.ok && res.j && res.j.ok) {
             durum($("gDurum"), "✅ " + res.j.mesaj, "ok");
-            galeri.push({ src: res.j.src, season: bolum, cap: { tr: aciklama || "Fotoğraf" }, yerel: b64 });
+            var eklenen = { src: res.j.src, season: bolum, cap: { tr: aciklama || "Fotoğraf" }, yerel: b64 };
+            galeri.push(eklenen);
             galeriCiz();
+            setTimeout(function () { delete eklenen.yerel; galeriCiz(); }, 90000);
             secilenB64 = null;
             $("gForm").classList.remove("acik");
             $("gAciklama").value = "";
