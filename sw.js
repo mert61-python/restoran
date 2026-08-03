@@ -5,7 +5,7 @@
    - Görseller (.jpeg/.png...)   → ÖNCE ÖNBELLEK (hızlı + offline). Yeni görseller
      yeni dosya adı taşıdığı için önbellekte olmaz → otomatik internetten çekilir.
    Böylece güncelleme yaptığımızda müşteri online'ken ANINDA yeni sürümü görür. */
-var CACHE = "pazarcik-menu-v8";
+var CACHE = "pazarcik-menu-v9";
 var ASSETS = [
   "./",
   "./index.html",
@@ -35,6 +35,7 @@ self.addEventListener("activate", function (e) {
 self.addEventListener("fetch", function (e) {
   if (e.request.method !== "GET") return;
   var url = new URL(e.request.url);
+  if (url.origin !== location.origin) return; // GitHub raw / dış kaynaklar: SW araya girmesin
   var isImage = /\.(jpe?g|png|webp|gif|svg|ico|avif)$/i.test(url.pathname);
 
   // ÖNEMLİ: Sadece BAŞARILI (200) cevaplar önbelleğe alınır.

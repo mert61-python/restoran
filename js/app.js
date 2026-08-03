@@ -16,6 +16,20 @@
      Okunamazsa menu-data.js'teki GALLERY listesi kullanılır. */
   var GAL = (typeof GALLERY !== "undefined" && GALLERY) ? GALLERY : [];
 
+  /* Fiyat/galeri verisini ÖNCE GitHub'dan TAZE oku: panelden yapılan değişiklik
+     Netlify yeniden yayınlamasa/duraklasa bile ANINDA görünür (QR değişmez).
+     GitHub okunamazsa Netlify kopyasına, o da olmazsa menu-data.js'e düşer. */
+  var RAW = "https://raw.githubusercontent.com/mert61-python/restoran/qr/";
+  function veriGetir(dosya) {
+    return fetch(RAW + dosya + "?t=" + Date.now(), { cache: "no-cache" })
+      .then(function (r) { if (!r.ok) throw 0; return r.json(); })
+      .catch(function () {
+        return fetch(dosya, { cache: "no-cache" })
+          .then(function (r) { return r.ok ? r.json() : null; })
+          .catch(function () { return null; });
+      });
+  }
+
   function t(o) { if (!o) return ""; return o[lang] || o.tr || ""; }
   function money(v) { return v + " " + MENU.ui.currency; }
   function el(tag, cls) { var e = document.createElement(tag); if (cls) e.className = cls; return e; }
@@ -193,8 +207,7 @@
   /* Önce panelden gelen güncel fiyat/stok verisini oku, sonra çiz.
      Veri gelmezse (internet yok vb.) varsayılan fiyatlarla açılır. */
   if (typeof fetch === "function") {
-    var pFiyat = fetch("data/menu.json", { cache: "no-cache" })
-      .then(function (r) { return r.ok ? r.json() : null; })
+    var pFiyat = veriGetir("data/menu.json")
       .then(function (d) {
         if (d && typeof d === "object") {
           OV.fiyatlar = d.fiyatlar || {};
@@ -203,8 +216,7 @@
       })
       .catch(function () {});
 
-    var pGaleri = fetch("data/galeri.json", { cache: "no-cache" })
-      .then(function (r) { return r.ok ? r.json() : null; })
+    var pGaleri = veriGetir("data/galeri.json")
       .then(function (d) {
         if (d && Array.isArray(d.fotograflar) && d.fotograflar.length) GAL = d.fotograflar;
       })
