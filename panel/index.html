@@ -263,6 +263,8 @@
   <!-- UYGULAMA -->
   <section id="uygulama" class="kap">
 
+    <div id="banner" style="display:none;background:#FDE7E3;border:1.5px solid #E8A79F;color:#8B241B;font-size:14.5px;font-weight:700;line-height:1.5;padding:12px 14px;border-radius:14px;margin:12px 0 0"></div>
+
     <!-- SEKME 1: BUGÜN -->
     <div class="sayfa acik" id="s-bugun">
       <div class="ozet">
@@ -409,6 +411,55 @@
     function durum(el, mesaj, tip) { el.className = "durum " + (tip || "bilgi"); el.textContent = mesaj; }
     function herUrun(fn) {
       MENU.categories.forEach(function (kat) { kat.items.forEach(function (it) { fn(it, kat); }); });
+    }
+
+    /* ---- Müşteri menüsüne yansıma kontrolü ----
+       Panel değişikliği GitHub'a kaydeder; müşteri menüsü Netlify'dan yayınlanır.
+       Yayın duraklarsa değişiklik müşteriye ULAŞMAZ. Bu yüzden kaydettikten sonra
+       müşterinin GERÇEKTEN gördüğü canlı menüyü okuyup karşılaştırıyoruz. */
+    var CANLI_MENU = "https://pazarcik-menu.netlify.app/data/menu.json";
+    function canliMenuOku() {
+      return fetch(CANLI_MENU + "?t=" + Date.now(), { cache: "no-cache" })
+        .then(function (r) { return r.ok ? r.json() : null; })
+        .catch(function () { return null; });
+    }
+    function ayniMi(gonderilen, canli) {
+      if (!canli || !canli.fiyatlar) return null; // okunamadı
+      var g = gonderilen.fiyatlar || {}, c = canli.fiyatlar;
+      for (var k in g) {
+        if (!c[k] || JSON.stringify(g[k]) !== JSON.stringify(c[k])) return false;
+      }
+      var gt = (gonderilen.tukendi || []).slice().sort().join("|");
+      var ct = (canli.tukendi || []).slice().sort().join("|");
+      return gt === ct;
+    }
+    /* Kaydettikten sonra ~2 dk boyunca canlıya yansıdı mı diye yoklar */
+    function yansimaKontrol(gonderilen) {
+      var deneme = 0;
+      return new Promise(function (coz) {
+        (function dene() {
+          deneme++;
+          canliMenuOku().then(function (d) {
+            var s = ayniMi(gonderilen, d);
+            if (s === true) { coz("canli"); return; }
+            if (deneme >= 8) { coz(s === null ? "bilinmiyor" : "yansimadi"); return; }
+            setTimeout(dene, 15000);
+          });
+        })();
+      });
+    }
+    /* Açılışta: kaydedilmiş ama müşteriye yansımamış değişiklik var mı? */
+    function bannerGuncelle() {
+      var b = document.getElementById("banner");
+      canliMenuOku().then(function (d) {
+        var s = ayniMi({ fiyatlar: ilk.fiyatlar, tukendi: ilk.tukendi }, d);
+        if (s === false) {
+          b.style.display = "block";
+          b.textContent = "⚠️ Kaydettiğin değişiklikler müşteri menüsüne HENÜZ yansımadı. Müşteriler şu an eski fiyatı görüyor. (Yayın açılınca düzelir)";
+        } else {
+          b.style.display = "none";
+        }
+      });
     }
 
     /* ---------- veri ---------- */
@@ -643,7 +694,7 @@
       $("uygulama").classList.add("acik");
       $("tabbar").classList.add("acik");
       $("cikis").hidden = false;
-      yukle().then(function () { ciz(); sekmeAc("bugun"); });
+      yukle().then(function () { ciz(); sekmeAc("bugun"); bannerGuncelle(); });
       galeriYukle().then(galeriCiz);
     }
     $("girisBtn").addEventListener("click", function () {
@@ -707,10 +758,20 @@
         .then(function (r) { return r.json().then(function (j) { return { ok: r.ok, j: j, kod: r.status }; }); })
         .then(function (res) {
           if (res.ok && res.j && res.j.ok) {
-            durum($("durum"), "✅ Kaydedildi! Yaklaşık 1 dakika içinde menüde görünecek.", "ok");
+            durum($("durum"), "✅ Kaydedildi. Müşteri menüsüne yansıması kontrol ediliyor…", "bilgi");
             veri.fiyatlar = gonder.fiyatlar;
             ilk = kopya(veri); ciz();
             $("meta").textContent = "Son güncelleme: " + new Date().toLocaleString("tr-TR");
+            yansimaKontrol(gonder).then(function (sonuc) {
+              if (sonuc === "canli") {
+                durum($("durum"), "✅ Kaydedildi ve müşteri menüsünde CANLI görünüyor.", "ok");
+              } else if (sonuc === "yansimadi") {
+                durum($("durum"), "⚠️ Kaydedildi AMA müşteri menüsüne YANSIMADI. Yayın duraklamış olabilir — müşteriler şu an ESKİ fiyatı görüyor. Yayın açılınca otomatik düzelir.", "hata");
+              } else {
+                durum($("durum"), "✅ Kaydedildi. (Müşteri menüsü kontrol edilemedi — internet?)", "bilgi");
+              }
+              bannerGuncelle();
+            });
           } else {
             durum($("durum"), "⚠️ " + ((res.j && res.j.mesaj) || "Kaydedilemedi."), "hata");
             if (res.kod === 401) { try { localStorage.removeItem(ANAHTAR); } catch (e) {} }
