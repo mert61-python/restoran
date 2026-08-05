@@ -97,7 +97,7 @@ export default async (req) => {
       method: "PUT",
       headers: { ...basliklar, "Content-Type": "application/json" },
       body: JSON.stringify({
-        message: "Panelden fiyat/stok guncellemesi",
+        message: "Panelden fiyat/stok guncellemesi [skip ci]",
         content: Buffer.from(icerik, "utf8").toString("base64"),
         branch: BRANCH,
         ...(sha ? { sha } : {})
