@@ -78,7 +78,7 @@ const MENU = {
              olduğu için "Alabalık" yaptım. Sadece "Balık" olsun istersen
              aşağıdaki üç satırı değiştir. */
           name: { tr: "Alabalık", ar: "سمك مشوي (تراوت)", en: "Grilled Trout" },
-          prices: [ { label: L_PORTION, value: 600 } ]
+          prices: [ { label: L_PORTION, value: 500 } ]
         }
       ]
     },
