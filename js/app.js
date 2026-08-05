@@ -20,14 +20,18 @@
      Netlify yeniden yayınlamasa/duraklasa bile ANINDA görünür (QR değişmez).
      GitHub okunamazsa Netlify kopyasına, o da olmazsa menu-data.js'e düşer. */
   var RAW = "https://raw.githubusercontent.com/mert61-python/restoran/qr/";
+  /* Netlify (hızlı, ~1 dk deploy) ile GitHub (~5 dk önbellekli AMA duraklamaya bağışık)
+     kopyalarının İKİSİNİ de oku, "guncelleme" damgası daha YENİ olanı kullan.
+     → Normalde ~1 dk'da günceli gösterir; Netlify duraklarsa GitHub'dan güncel kalır. */
   function veriGetir(dosya) {
-    return fetch(RAW + dosya + "?t=" + Date.now(), { cache: "no-cache" })
-      .then(function (r) { if (!r.ok) throw 0; return r.json(); })
-      .catch(function () {
-        return fetch(dosya, { cache: "no-cache" })
-          .then(function (r) { return r.ok ? r.json() : null; })
-          .catch(function () { return null; });
-      });
+    var nf = fetch(dosya, { cache: "no-cache" }).then(function (r) { return r.ok ? r.json() : null; }).catch(function () { return null; });
+    var gh = fetch(RAW + dosya + "?t=" + Date.now(), { cache: "no-cache" }).then(function (r) { return r.ok ? r.json() : null; }).catch(function () { return null; });
+    return Promise.all([nf, gh]).then(function (a) {
+      var x = a[0], y = a[1];
+      if (!x) return y;
+      if (!y) return x;
+      return ((y.guncelleme || "") > (x.guncelleme || "")) ? y : x;
+    });
   }
 
   function t(o) { if (!o) return ""; return o[lang] || o.tr || ""; }
