@@ -207,6 +207,34 @@
     if (lbOpen) { closeLightbox(); }
   });
 
+  /* Sosyal ikonlar: Android'de ilgili UYGULAMA yüklüyse onu aç (intent://),
+     yüklü değilse tarayıcıya düşer (browser_fallback_url). iOS/masaüstünde
+     normal https kalır (iOS'ta Universal Links uygulamayı zaten açar). */
+  (function () {
+    if (!/Android/i.test(navigator.userAgent || "")) return;
+    var paket = {
+      "youtube.com": "com.google.android.youtube",
+      "instagram.com": "com.instagram.android",
+      "facebook.com": "com.facebook.katana"
+    };
+    var links = document.querySelectorAll(".social-link");
+    for (var i = 0; i < links.length; i++) {
+      (function (a) {
+        a.addEventListener("click", function (e) {
+          var href = a.getAttribute("href") || "";
+          var u;
+          try { u = new URL(href); } catch (x) { return; }
+          var pkg = paket[u.hostname.replace(/^www\./, "")];
+          if (!pkg) return;
+          e.preventDefault();
+          window.location.href = "intent://" + u.hostname + u.pathname + u.search +
+            "#Intent;package=" + pkg + ";scheme=https;S.browser_fallback_url=" +
+            encodeURIComponent(href) + ";end";
+        });
+      })(links[i]);
+    }
+  })();
+
   /* ---------- AÇILIŞ EKRANI (logo → menü) ---------- */
   (function () {
     var intro = document.getElementById("intro");
