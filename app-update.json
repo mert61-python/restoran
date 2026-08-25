@@ -1,7 +1,7 @@
 {
-  "versionCode": 8,
-  "versionName": "1.7",
-  "apkUrl": "https://github.com/mert61-python/restoran/releases/download/apk-v1.7/Pazarcik-Menu-Fiyat.apk",
+  "versionCode": 9,
+  "versionName": "1.8",
+  "apkUrl": "https://github.com/mert61-python/restoran/releases/download/apk-v1.8/Pazarcik-Menu-Fiyat.apk",
   "zorunlu": false,
-  "notlar": "• Galeriye video ekleme\n• Videolar menude oynatilir"
+  "notlar": "• Salatalar eklendi\n• Panelden yeni urun ekleme (ad/fiyat/kategori)"
 }
