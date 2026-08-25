@@ -47,6 +47,8 @@
     document.getElementById("restTagline").textContent = t(MENU.restaurant.tagline);
     document.getElementById("offerings").textContent = t(MENU.ui.offerings);
     document.getElementById("footNote").textContent = t(MENU.ui.footer);
+    var st = document.getElementById("socialTitle");
+    if (st) st.textContent = ({ tr: "Bizi takip edin", ar: "تابعونا", en: "Follow us" })[lang] || "Bizi takip edin";
     document.getElementById("tabMenu").textContent = t(MENU.ui.tabs.menu);
     document.getElementById("tabGallery").textContent = t(MENU.ui.tabs.gallery);
 

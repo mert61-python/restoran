@@ -392,6 +392,14 @@ body.intro-acik { overflow: hidden; }
 .foot-content { position: relative; z-index: 2; }
 .foot-note { font-size: 15px; font-weight: 600; text-shadow: 0 1px 8px rgba(0,0,0,.6); }
 
+/* ---------------- SOSYAL MEDYA ---------------- */
+.social { text-align: center; margin: 0 0 18px; }
+.social-title { font-size: 14px; font-weight: 700; letter-spacing: .3px; margin-bottom: 11px; text-shadow: 0 1px 6px rgba(0,0,0,.5); }
+.social-links { display: flex; gap: 18px; justify-content: center; }
+.social-link { display: inline-flex; width: 52px; height: 52px; border-radius: 15px; overflow: hidden; box-shadow: 0 4px 12px rgba(0,0,0,.4); transition: transform .15s ease; }
+.social-link:active { transform: scale(.93); }
+.social-link svg { width: 52px; height: 52px; display: block; }
+
 /* ---------------- ESKİ TELEFON YEDEĞİ (aspect-ratio yoksa) ---------------- */
 @supports not (aspect-ratio: 1 / 1) {
   .hero   { min-height: 300px; }
