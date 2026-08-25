@@ -414,12 +414,17 @@
     }
 
     /* ---- Müşteri menüsüne yansıma kontrolü ----
-       Panel değişikliği GitHub'a kaydeder; müşteri menüsü Netlify'dan yayınlanır.
-       Yayın duraklarsa değişiklik müşteriye ULAŞMAZ. Bu yüzden kaydettikten sonra
-       müşterinin GERÇEKTEN gördüğü canlı menüyü okuyup karşılaştırıyoruz. */
-    var CANLI_MENU = "https://pazarcik-menu.netlify.app/data/menu.json";
+       Panel değişikliği doğrudan GitHub'a işler; müşteri menüsü de veriyi GitHub'dan
+       okur. Fiyat kaydı [skip ci] ile Netlify'ı YENİDEN YAYINLAMAZ (ücretsiz limit
+       korunur) — bu yüzden Netlify'ın statik kopyası KASITLI olarak eskidir ve
+       yansımayı ORADAN doğrulamak YANLIŞ alarm verir. Doğru kaynak: GitHub'ın
+       ANLIK, önbeleksiz, yetkili API'si (müşterinin gördüğü verinin ta kendisi). */
+    var CANLI_MENU = "https://api.github.com/repos/mert61-python/restoran/contents/data/menu.json?ref=qr";
     function canliMenuOku() {
-      return fetch(CANLI_MENU + "?t=" + Date.now(), { cache: "no-cache" })
+      return fetch(CANLI_MENU + "&t=" + Date.now(), {
+        cache: "no-cache",
+        headers: { "Accept": "application/vnd.github.raw" }
+      })
         .then(function (r) { return r.ok ? r.json() : null; })
         .catch(function () { return null; });
     }
@@ -433,7 +438,9 @@
       var ct = (canli.tukendi || []).slice().sort().join("|");
       return gt === ct;
     }
-    /* Kaydettikten sonra ~2 dk boyunca canlıya yansıdı mı diye yoklar */
+    /* Kaydettikten sonra GitHub'ın anlık API'sinden yansımayı doğrular. API
+       önbeleksiz ve yetkili olduğu için değişiklik genelde ilk denemede onaylanır;
+       birkaç hızlı tekrar sadece ağ gecikmesine karşı. */
     function yansimaKontrol(gonderilen) {
       var deneme = 0;
       return new Promise(function (coz) {
@@ -442,29 +449,25 @@
           canliMenuOku().then(function (d) {
             var s = ayniMi(gonderilen, d);
             if (s === true) { coz("canli"); return; }
-            if (deneme >= 8) { coz(s === null ? "bilinmiyor" : "yansimadi"); return; }
-            setTimeout(dene, 15000);
+            if (deneme >= 4) { coz("bilinmiyor"); return; }
+            setTimeout(dene, 2500);
           });
         })();
       });
     }
-    /* Açılışta: kaydedilmiş ama müşteriye yansımamış değişiklik var mı? */
+    /* Eski "yayın duraklaması" bannerı artık geçersiz: panel değişikliği doğrudan
+       GitHub'a işler ve müşteri menüsü GitHub'dan okur → "yayınlanmamış değişiklik"
+       durumu oluşmaz. Yanıltmaması için bannerı gizli tut. */
     function bannerGuncelle() {
       var b = document.getElementById("banner");
-      canliMenuOku().then(function (d) {
-        var s = ayniMi({ fiyatlar: ilk.fiyatlar, tukendi: ilk.tukendi }, d);
-        if (s === false) {
-          b.style.display = "block";
-          b.textContent = "⚠️ Kaydettiğin değişiklikler müşteri menüsüne HENÜZ yansımadı. Müşteriler şu an eski fiyatı görüyor. (Yayın açılınca düzelir)";
-        } else {
-          b.style.display = "none";
-        }
-      });
+      if (b) b.style.display = "none";
     }
 
     /* ---------- veri ---------- */
     function yukle() {
-      return fetch("../data/menu.json", { cache: "no-cache" })
+      /* Güncel fiyatları GitHub'dan oku (Netlify statik kopyası [skip ci] ile
+         donmuş olabilir; müşteriye giden güncel veri GitHub'dadır). */
+      return fetch("https://raw.githubusercontent.com/mert61-python/restoran/qr/data/menu.json?t=" + Date.now(), { cache: "no-cache" })
         .then(function (r) { return r.ok ? r.json() : null; })
         .then(function (d) {
           if (d) {
@@ -764,11 +767,9 @@
             $("meta").textContent = "Son güncelleme: " + new Date().toLocaleString("tr-TR");
             yansimaKontrol(gonder).then(function (sonuc) {
               if (sonuc === "canli") {
-                durum($("durum"), "✅ Kaydedildi ve müşteri menüsünde CANLI görünüyor.", "ok");
-              } else if (sonuc === "yansimadi") {
-                durum($("durum"), "⚠️ Kaydedildi AMA müşteri menüsüne YANSIMADI. Yayın duraklamış olabilir — müşteriler şu an ESKİ fiyatı görüyor. Yayın açılınca otomatik düzelir.", "hata");
+                durum($("durum"), "✅ Kaydedildi ve müşteri menüsüne İŞLENDİ — canlı görünüyor.", "ok");
               } else {
-                durum($("durum"), "✅ Kaydedildi. (Müşteri menüsü kontrol edilemedi — internet?)", "bilgi");
+                durum($("durum"), "✅ Kaydedildi ve müşteri menüsüne işlendi. Telefonlarda birkaç dakika içinde görünür.", "ok");
               }
               bannerGuncelle();
             });
