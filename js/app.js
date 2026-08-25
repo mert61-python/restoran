@@ -10,7 +10,7 @@
 
   /* Yönetim panelinden (admin.html) güncellenen canlı fiyat/stok verisi.
      data/menu.json okunamazsa menu-data.js'teki varsayılan fiyatlar kullanılır. */
-  var OV = { fiyatlar: {}, tukendi: [] };
+  var OV = { fiyatlar: {}, tukendi: [], ekstra: [] };
 
   /* Galeri listesi: panelden yönetilir (data/galeri.json).
      Okunamazsa menu-data.js'teki GALLERY listesi kullanılır. */
@@ -57,6 +57,46 @@
   }
 
   /* ---------- MENÜ ---------- */
+  /* Tek bir ürünü çizer (hem sabit menü ürünü hem panelden eklenen ekstra ürün).
+     ekstra ürünlerde name yalnızca {tr} taşır → t() Türkçeye düşer; TR alt-yazı gizlenir. */
+  function cizUrun(it, sec) {
+    var item = el("article", "item");
+    var main = el("div", "item-main");
+    var nm = el("div", "item-name"); nm.textContent = t(it.name);
+    main.appendChild(nm);
+    // Arapça/İngilizce modda personelin anlaması için Türkçe karşılık (ekstra üründe gerekmez)
+    if (lang !== "tr" && !it._ekstra) {
+      var trn = el("div", "item-name-tr");
+      trn.textContent = "🇹🇷 " + (it.name.tr || "");
+      trn.lang = "tr";
+      trn.setAttribute("translate", "no"); // tarayıcı çevirisi bunu Arapçaya çevirmesin
+      main.appendChild(trn);
+    }
+    if (it.desc) { var d = el("div", "item-desc"); d.textContent = t(it.desc); main.appendChild(d); }
+
+    var ovFiyat = OV.fiyatlar[it.name.tr];
+    var tukendi = OV.tukendi.indexOf(it.name.tr) !== -1;
+    if (tukendi) item.classList.add("tukendi");
+
+    var prices = el("div", "item-prices" + (it.prices.length > 1 ? " multi" : ""));
+    if (tukendi) {
+      var so = el("span", "sold-out");
+      so.textContent = t(MENU.ui.tukendi);
+      prices.appendChild(so);
+    } else {
+      it.prices.forEach(function (p, pi) {
+        var row = el("div", "price-row");
+        if (p.label) { var lbl = el("span", "price-label"); lbl.textContent = t(p.label); row.appendChild(lbl); }
+        var deger = (ovFiyat && typeof ovFiyat[pi] === "number") ? ovFiyat[pi] : p.value;
+        var val = el("span", "price-value"); val.textContent = money(deger); row.appendChild(val);
+        prices.appendChild(row);
+      });
+    }
+
+    item.appendChild(main); item.appendChild(prices);
+    sec.appendChild(item);
+  }
+
   function renderMenu() {
     var menu = document.getElementById("menu");
     menu.innerHTML = "";
@@ -70,43 +110,14 @@
       h.appendChild(icon); h.appendChild(cname);
       sec.appendChild(h);
 
-      cat.items.forEach(function (it) {
-        var item = el("article", "item");
-        var main = el("div", "item-main");
-        var nm = el("div", "item-name"); nm.textContent = t(it.name);
-        main.appendChild(nm);
-        // Arapça/İngilizce modda personelin anlaması için Türkçe karşılık
-        if (lang !== "tr") {
-          var trn = el("div", "item-name-tr");
-          trn.textContent = "🇹🇷 " + (it.name.tr || "");
-          trn.lang = "tr";
-          trn.setAttribute("translate", "no"); // tarayıcı çevirisi bunu Arapçaya çevirmesin
-          main.appendChild(trn);
-        }
-        if (it.desc) { var d = el("div", "item-desc"); d.textContent = t(it.desc); main.appendChild(d); }
+      cat.items.forEach(function (it) { cizUrun(it, sec); });
 
-        var ovFiyat = OV.fiyatlar[it.name.tr];
-        var tukendi = OV.tukendi.indexOf(it.name.tr) !== -1;
-        if (tukendi) item.classList.add("tukendi");
-
-        var prices = el("div", "item-prices" + (it.prices.length > 1 ? " multi" : ""));
-        if (tukendi) {
-          var so = el("span", "sold-out");
-          so.textContent = t(MENU.ui.tukendi);
-          prices.appendChild(so);
-        } else {
-          it.prices.forEach(function (p, pi) {
-            var row = el("div", "price-row");
-            if (p.label) { var lbl = el("span", "price-label"); lbl.textContent = t(p.label); row.appendChild(lbl); }
-            var deger = (ovFiyat && typeof ovFiyat[pi] === "number") ? ovFiyat[pi] : p.value;
-            var val = el("span", "price-value"); val.textContent = money(deger); row.appendChild(val);
-            prices.appendChild(row);
-          });
-        }
-
-        item.appendChild(main); item.appendChild(prices);
-        sec.appendChild(item);
+      // Panelden eklenen ekstra ürünler (bu kategoriye ait olanlar)
+      (OV.ekstra || []).forEach(function (e) {
+        if (!e || e.kategori !== cat.name.tr) return;
+        cizUrun({ name: { tr: e.ad }, prices: [{ value: e.fiyat }], _ekstra: true }, sec);
       });
+
       menu.appendChild(sec);
     });
   }
@@ -253,6 +264,7 @@
         if (d && typeof d === "object") {
           OV.fiyatlar = d.fiyatlar || {};
           OV.tukendi = Array.isArray(d.tukendi) ? d.tukendi : [];
+          OV.ekstra = Array.isArray(d.ekstra) ? d.ekstra : [];
         }
       })
       .catch(function () {});

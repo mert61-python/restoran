@@ -228,6 +228,23 @@
     #onayla{background:var(--yesil2);color:#fff}
 
     @media (min-width:640px){ body{font-size:19px} }
+    /* Yeni ürün ekleme */
+    .yeniurun{margin:14px 0 4px;border:2px solid var(--cizgi);border-radius:16px;background:var(--kart);overflow:hidden}
+    .yeniurun>summary{list-style:none;cursor:pointer;padding:16px;font-size:17px;font-weight:800;color:var(--yesil2)}
+    .yeniurun>summary::-webkit-details-marker{display:none}
+    .yeniurun[open]>summary{border-bottom:1px solid var(--cizgi)}
+    .yeniurun .g-form{border:0;background:transparent;border-radius:0;margin:0}
+    .yeniurun .g-form input[type=number]{width:100%;padding:14px;font-size:17px;border:2px solid var(--cizgi);border-radius:12px;background:#fff;box-sizing:border-box}
+    .yeniurun .g-form input[type=number]:focus{outline:none;border-color:var(--yesil2)}
+    .yeniurun .ekle-btn{background:var(--yesil2);color:#fff}
+    .ekstra-bos{color:var(--soluk);font-size:14px;margin:12px 2px}
+    .ekstra-satir{display:flex;align-items:center;gap:8px;padding:10px 6px;border-top:1px solid var(--cizgi)}
+    .ekstra-bilgi{flex:1;min-width:0}
+    .ekstra-ad{font-size:16px;font-weight:700;color:#23402F;word-break:break-word}
+    .ekstra-kat{font-size:12.5px;color:var(--soluk)}
+    .ekstra-fiyat{width:80px;padding:10px;font-size:16px;border:2px solid var(--cizgi);border-radius:10px;text-align:center;background:#fff}
+    .ekstra-tl{font-weight:800;color:var(--soluk)}
+    .ekstra-sil{border:0;background:#f3e2e2;color:#a33;border-radius:10px;padding:10px 12px;font-size:16px;cursor:pointer}
   </style>
 </head>
 <body>
@@ -284,6 +301,20 @@
         <b>Fiyat değiştirme</b><br>
         <b>−</b> ve <b>+</b> tuşlarına bas (rakama dokunup da yazabilirsin). Bitince <b>KAYDET</b>.
       </div>
+      <details class="yeniurun" id="yeniUrunBox">
+        <summary>➕ Yeni ürün ekle</summary>
+        <div class="g-form acik">
+          <label class="et" for="yuAd">Ürün adı</label>
+          <input type="text" id="yuAd" maxlength="60" placeholder="Örn: Mevsim Salata">
+          <label class="et" for="yuFiyat">Fiyat (₺)</label>
+          <input type="number" id="yuFiyat" inputmode="numeric" min="0" placeholder="Örn: 100">
+          <label class="et" for="yuKat">Hangi bölüme eklensin?</label>
+          <select id="yuKat"></select>
+          <div class="dug"><button id="yuEkle" type="button" class="ekle-btn">➕ Ekle</button></div>
+          <div id="yuDurum" class="durum"></div>
+          <div id="ekstraListe"></div>
+        </div>
+      </details>
       <div class="zip" id="zip"></div>
       <div id="fiyatListe"></div>
     </div>
@@ -395,8 +426,8 @@
     var $ = function (id) { return document.getElementById(id); };
     var ANAHTAR = "pz_panel_sifre";
 
-    var veri = { fiyatlar: {}, tukendi: [] };
-    var ilk  = { fiyatlar: {}, tukendi: [] };
+    var veri = { fiyatlar: {}, tukendi: [], ekstra: [] };
+    var ilk  = { fiyatlar: {}, tukendi: [], ekstra: [] };
     var sifre = "";
     var aktifSekme = "bugun";
 
@@ -475,6 +506,7 @@
           if (d) {
             veri.fiyatlar = d.fiyatlar || {};
             veri.tukendi = Array.isArray(d.tukendi) ? d.tukendi : [];
+            veri.ekstra = Array.isArray(d.ekstra) ? d.ekstra : [];
             if (d.guncelleme) {
               var t = new Date(d.guncelleme);
               $("meta").textContent = "Son güncelleme: " + (isNaN(t) ? d.guncelleme : t.toLocaleString("tr-TR"));
@@ -672,7 +704,97 @@
       });
     }
 
-    function ciz() { bugunCiz(); fiyatCiz(); sayaclar(); }
+    /* ---------- YENİ ÜRÜN (panelden menüye ekleme) ---------- */
+    function katSecenekleri() {
+      var sel = $("yuKat"); if (!sel) return; sel.innerHTML = "";
+      MENU.categories.forEach(function (kat) {
+        var o = document.createElement("option");
+        o.value = kat.name.tr;
+        o.textContent = (kat.icon || "") + " " + kat.name.tr;
+        sel.appendChild(o);
+      });
+    }
+    /* Fiyat haritasını SON KAYITLI değerlerden kur (bekleyen fiyat düzenlemelerini
+       dahil etme) → yeni ürün ekleme yalnızca ekstra listesini değiştirsin. */
+    function saklananFiyatlar() {
+      var m = {};
+      herUrun(function (it) {
+        var ad = it.name.tr;
+        var k = (ilk && ilk.fiyatlar && ilk.fiyatlar[ad]) ? ilk.fiyatlar[ad] : null;
+        m[ad] = it.prices.map(function (p, i) { return (k && typeof k[i] === "number") ? k[i] : p.value; });
+      });
+      return m;
+    }
+    function ekstraKaydet(basari) {
+      durum($("yuDurum"), "Kaydediliyor…", "bilgi");
+      var gonder = {
+        fiyatlar: saklananFiyatlar(),
+        tukendi: (ilk.tukendi || []).slice(),
+        ekstra: (veri.ekstra || []).slice()
+      };
+      return fetch("/.netlify/functions/menu-kaydet", {
+        method: "POST", headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ sifre: sifre, veri: gonder })
+      })
+        .then(function (r) { return r.json().then(function (j) { return { ok: r.ok, j: j, kod: r.status }; }); })
+        .then(function (res) {
+          if (res.ok && res.j && res.j.ok) {
+            durum($("yuDurum"), basari || "✅ Kaydedildi.", "ok");
+            ilk.ekstra = (veri.ekstra || []).slice();
+          } else {
+            durum($("yuDurum"), "⚠️ " + ((res.j && res.j.mesaj) || "Kaydedilemedi."), "hata");
+            if (res.kod === 401) { try { localStorage.removeItem(ANAHTAR); } catch (e) {} }
+          }
+        })
+        .catch(function () { durum($("yuDurum"), "⚠️ İnternete bağlanılamadı.", "hata"); });
+    }
+    function ekstraCiz() {
+      var kap = $("ekstraListe"); if (!kap) return; kap.innerHTML = "";
+      var liste = veri.ekstra || [];
+      if (!liste.length) {
+        var bos = document.createElement("p"); bos.className = "ekstra-bos";
+        bos.textContent = "Henüz eklediğiniz ürün yok.";
+        kap.appendChild(bos); return;
+      }
+      liste.forEach(function (e) {
+        var row = document.createElement("div"); row.className = "ekstra-satir";
+        var sol = document.createElement("div"); sol.className = "ekstra-bilgi";
+        var ad = document.createElement("div"); ad.className = "ekstra-ad"; ad.textContent = e.ad;
+        var kat = document.createElement("div"); kat.className = "ekstra-kat"; kat.textContent = e.kategori;
+        sol.appendChild(ad); sol.appendChild(kat);
+        var fi = document.createElement("input");
+        fi.type = "number"; fi.className = "ekstra-fiyat"; fi.inputMode = "numeric"; fi.min = "0"; fi.value = e.fiyat;
+        fi.addEventListener("change", function () {
+          e.fiyat = Math.max(0, Math.round(Number(fi.value) || 0)); fi.value = e.fiyat;
+          ekstraKaydet("✅ Fiyat güncellendi.");
+        });
+        var tl = document.createElement("span"); tl.className = "ekstra-tl"; tl.textContent = "₺";
+        var sil = document.createElement("button"); sil.type = "button"; sil.className = "ekstra-sil"; sil.textContent = "🗑";
+        sil.addEventListener("click", function () {
+          if (!confirm("“" + e.ad + "” menüden çıkarılsın mı?")) return;
+          veri.ekstra = (veri.ekstra || []).filter(function (x) { return x.id !== e.id; });
+          ekstraCiz();
+          ekstraKaydet("✅ Ürün çıkarıldı.");
+        });
+        row.appendChild(sol); row.appendChild(fi); row.appendChild(tl); row.appendChild(sil);
+        kap.appendChild(row);
+      });
+    }
+    if ($("yuEkle")) $("yuEkle").addEventListener("click", function () {
+      var ad = ($("yuAd").value || "").trim();
+      var fiyat = Math.max(0, Math.round(Number($("yuFiyat").value) || 0));
+      var kat = $("yuKat").value;
+      if (!ad) { durum($("yuDurum"), "⚠️ Ürün adını yaz.", "hata"); return; }
+      if (!fiyat) { durum($("yuDurum"), "⚠️ Fiyat gir.", "hata"); return; }
+      if (!kat) { durum($("yuDurum"), "⚠️ Bölüm seç.", "hata"); return; }
+      if (!veri.ekstra) veri.ekstra = [];
+      veri.ekstra.push({ id: "e-" + Date.now() + "-" + Math.floor(Math.random() * 1000), kategori: kat, ad: ad, fiyat: fiyat, aciklama: "" });
+      $("yuAd").value = ""; $("yuFiyat").value = "";
+      ekstraCiz();
+      ekstraKaydet("✅ “" + ad + "” eklendi. Menüde birkaç dakikada görünür.");
+    });
+
+    function ciz() { bugunCiz(); fiyatCiz(); ekstraCiz(); sayaclar(); }
 
     /* ---------- sekmeler ---------- */
     function sekmeAc(ad) {
@@ -699,6 +821,7 @@
       $("uygulama").classList.add("acik");
       $("tabbar").classList.add("acik");
       $("cikis").hidden = false;
+      katSecenekleri();
       yukle().then(function () { ciz(); sekmeAc("bugun"); bannerGuncelle(); });
       galeriYukle().then(galeriCiz);
     }
@@ -749,7 +872,7 @@
       var eski = btn.textContent; btn.textContent = "Kaydediliyor…";
       durum($("durum"), "Kaydediliyor, lütfen bekle…", "bilgi");
 
-      var gonder = { fiyatlar: {}, tukendi: veri.tukendi.slice() };
+      var gonder = { fiyatlar: {}, tukendi: veri.tukendi.slice(), ekstra: (veri.ekstra || []).slice() };
       herUrun(function (it) {
         var ad = it.name.tr;
         gonder.fiyatlar[ad] = it.prices.map(function (p, i) { return deger(ad, i, it); });

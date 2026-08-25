@@ -147,6 +147,22 @@ const MENU = {
       ]
     },
 
+    /* ----------------- SALATALAR ----------------- */
+    {
+      icon: "🥗",
+      name: { tr: "Salatalar", ar: "السلطات", en: "Salads" },
+      items: [
+        {
+          name: { tr: "Mevsim Salata", ar: "سلطة الموسم", en: "Seasonal Salad" },
+          prices: [ { value: 100 } ]
+        },
+        {
+          name: { tr: "Çoban Salata", ar: "سلطة الراعي", en: "Shepherd's Salad" },
+          prices: [ { value: 150 } ]
+        }
+      ]
+    },
+
     /* ----------------- TATLILAR ----------------- */
     {
       icon: "🍮",

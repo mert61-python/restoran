@@ -52,6 +52,19 @@ export default async (req) => {
     fiyatlar: {},
     tukendi: Array.isArray(veri.tukendi)
       ? veri.tukendi.filter((x) => typeof x === "string" && x.length < 120).slice(0, 200)
+      : [],
+    /* Panelden eklenen ekstra ürünler: {id, kategori, ad, fiyat, aciklama} */
+    ekstra: Array.isArray(veri.ekstra)
+      ? veri.ekstra
+          .filter((x) => x && typeof x.ad === "string" && x.ad.trim() && typeof x.kategori === "string")
+          .slice(0, 100)
+          .map((x, i) => ({
+            id: (typeof x.id === "string" && x.id) ? x.id.slice(0, 40) : ("e-" + Date.now() + "-" + i),
+            kategori: x.kategori.slice(0, 120),
+            ad: x.ad.trim().slice(0, 120),
+            fiyat: Math.max(0, Math.min(1000000, Math.round(Number(x.fiyat) || 0))),
+            aciklama: (typeof x.aciklama === "string" ? x.aciklama : "").slice(0, 120)
+          }))
       : []
   };
   for (const [ad, dizi] of Object.entries(veri.fiyatlar)) {
