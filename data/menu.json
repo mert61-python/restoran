@@ -1,5 +1,5 @@
 {
-  "guncelleme": "2026-08-25T10:30:17.135Z",
+  "guncelleme": "2026-08-25T12:04:45.528Z",
   "fiyatlar": {
     "Köfte": [
       400,
@@ -65,5 +65,14 @@
       15
     ]
   },
-  "tukendi": []
+  "tukendi": [],
+  "ekstra": [
+    {
+      "id": "test-e2e",
+      "kategori": "Salatalar",
+      "ad": "Test Salata (silinecek)",
+      "fiyat": 99,
+      "aciklama": ""
+    }
+  ]
 }
