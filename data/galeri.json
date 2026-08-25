@@ -1,5 +1,5 @@
 {
-  "guncelleme": "2026-08-25T11:25:14.478Z",
+  "guncelleme": "2026-08-25T11:25:18.143Z",
   "fotograflar": [
     {
       "src": "dish-izgara-kuzu.jpeg",
@@ -240,15 +240,6 @@
       "season": "summer",
       "cap": {
         "tr": "Fotoğraf"
-      }
-    },
-    {
-      "tip": "video",
-      "src": "https://res.cloudinary.com/e2zuqnrd/video/upload/v1787656861/xzr90qqhm5brqr0cwgnk.mp4",
-      "poster": "https://res.cloudinary.com/e2zuqnrd/video/upload/so_0,w_800,h_600,c_fill,q_auto/v1787656861/xzr90qqhm5brqr0cwgnk.jpg",
-      "season": "dishes",
-      "cap": {
-        "tr": "video testi (silinecek)"
       }
     }
   ]
