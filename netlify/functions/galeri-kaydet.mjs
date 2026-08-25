@@ -127,6 +127,35 @@ export default async (req) => {
     return cevap({ ok: true, mesaj: "Fotoğraf eklendi. ~1 dakika içinde galeride görünecek.", src: ad });
   }
 
+  /* ============== VİDEO EKLE (Cloudinary) ==============
+     Video dosyası Cloudinary'de barınır (depoyu şişirmez, Netlify limitini yemez).
+     Burada yalnızca galeri.json'a video kaydını ekleriz — dosya commit'lemeyiz.
+     [skip ci]: müşteri menüsü galeri.json'u GitHub'dan okur + video Cloudinary'den
+     geldiği için Netlify yeniden yayınına GEREK YOK → ücretsiz limit korunur. */
+  if (g.islem === "ekle-video") {
+    const url = typeof g.url === "string" ? g.url.trim() : "";
+    const poster = typeof g.poster === "string" ? g.poster.trim() : "";
+    if (!/^https:\/\/res\.cloudinary\.com\/[\w./-]+$/.test(url)) {
+      return cevap({ ok: false, mesaj: "Geçersiz video adresi." }, 400);
+    }
+    if (poster && !/^https:\/\/res\.cloudinary\.com\/[\w./,-]+$/.test(poster)) {
+      return cevap({ ok: false, mesaj: "Geçersiz kapak adresi." }, 400);
+    }
+    const bolum = BOLUMLER.indexOf(g.bolum) !== -1 ? g.bolum : "dishes";
+    let cap = (typeof g.aciklama === "string" ? g.aciklama : "").trim().slice(0, 60);
+    if (!cap) cap = "Video";
+
+    liste.push({ tip: "video", src: url, poster: poster || "", season: bolum, cap: { tr: cap } });
+    try {
+      const yeni = JSON.stringify({ guncelleme: new Date().toISOString(), fotograflar: liste }, null, 2) + "\n";
+      await dosyaYaz(token, JSON_PATH, Buffer.from(yeni, "utf8").toString("base64"),
+        "Galeriye video eklendi [skip ci]", jsonSha);
+    } catch (e) {
+      return cevap({ ok: false, mesaj: "Video listeye eklenemedi. Tekrar deneyin." }, 502);
+    }
+    return cevap({ ok: true, mesaj: "Video eklendi. ~1 dakika içinde galeride görünecek.", src: url });
+  }
+
   /* ================= SİL ================= */
   if (g.islem === "sil") {
     const src = typeof g.src === "string" ? g.src : "";

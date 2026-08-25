@@ -326,6 +326,22 @@ body.intro-acik { overflow: hidden; }
   transition: transform .3s ease;
 }
 .gphoto:hover img { transform: scale(1.06); }
+/* Video karesi: ortada ▶ oynat rozeti */
+.gphoto .oynat {
+  position: absolute; inset: 0; margin: auto;
+  width: 54px; height: 54px; border-radius: 50%;
+  background: rgba(0,0,0,.55);
+  display: flex; align-items: center; justify-content: center;
+  pointer-events: none;
+  box-shadow: 0 2px 10px rgba(0,0,0,.4);
+}
+.gphoto .oynat::before {
+  content: ""; display: block;
+  width: 0; height: 0; margin-left: 5px;
+  border-left: 18px solid #fff;
+  border-top: 11px solid transparent;
+  border-bottom: 11px solid transparent;
+}
 .gphoto .cap {
   position: absolute;
   left: 0; right: 0; bottom: 0;
@@ -349,6 +365,7 @@ body.intro-acik { overflow: hidden; }
   cursor: zoom-out;
 }
 .lightbox img { max-width: 100%; max-height: 100%; border-radius: 8px; box-shadow: 0 8px 40px rgba(0,0,0,.6); }
+.lightbox video { max-width: 100%; max-height: 100%; border-radius: 8px; box-shadow: 0 8px 40px rgba(0,0,0,.6); background: #000; cursor: default; }
 
 /* ---------------- FOOTER (dere) ---------------- */
 .foot {

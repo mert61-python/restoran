@@ -111,6 +111,16 @@
     });
   }
 
+  /* Cloudinary video adresinden kapak (poster) görseli üret: ilk kareyi ister.
+     Açık poster verilmişse onu kullanır. */
+  function videoPoster(url, acik) {
+    if (acik) return acik;
+    try {
+      var u = url.replace("/upload/", "/upload/so_0,w_800,h_600,c_fill,q_auto/");
+      return u.replace(/\.(mp4|mov|webm|m4v|avi|mkv)(\?.*)?$/i, ".jpg");
+    } catch (e) { return ""; }
+  }
+
   /* ---------- GALERİ ---------- */
   function renderGallery() {
     var g = document.getElementById("gallery");
@@ -128,13 +138,23 @@
       var grid = el("div", "gallery-grid");
       items.forEach(function (it) {
         var fig = el("figure", "gphoto");
+        var isVideo = (it.tip === "video");
         var img = el("img");
-        img.src = "img/" + it.src;
+        img.src = isVideo ? videoPoster(it.src, it.poster) : ("img/" + it.src);
         img.alt = t(it.cap);
         img.loading = "lazy";
+        fig.appendChild(img);
+        if (isVideo) {
+          fig.classList.add("video");
+          var oynat = el("span", "oynat"); oynat.setAttribute("aria-hidden", "true");
+          fig.appendChild(oynat);
+        }
         var cap = el("figcaption", "cap"); cap.textContent = t(it.cap);
-        fig.appendChild(img); fig.appendChild(cap);
-        fig.addEventListener("click", function () { openLightbox(img.src, t(it.cap)); });
+        fig.appendChild(cap);
+        fig.addEventListener("click", function () {
+          if (isVideo) openLightbox(it.src, t(it.cap), true);
+          else openLightbox(img.src, t(it.cap), false);
+        });
         grid.appendChild(fig);
       });
       g.appendChild(grid);
@@ -143,19 +163,31 @@
 
   /* ---------- LIGHTBOX ---------- */
   var lbOpen = false;
-  function openLightbox(src, alt) {
+  function openLightbox(src, alt, isVideo) {
     var lb = document.getElementById("lightbox");
     var im = document.getElementById("lightboxImg");
-    im.src = src; im.alt = alt || "";
+    var vd = document.getElementById("lightboxVideo");
+    if (isVideo) {
+      im.hidden = true; im.src = "";
+      vd.hidden = false; vd.src = src;
+      try { vd.currentTime = 0; } catch (e) {}
+      vd.play().catch(function () {});
+    } else {
+      if (vd) { try { vd.pause(); } catch (e) {} vd.removeAttribute("src"); vd.hidden = true; }
+      im.hidden = false; im.src = src; im.alt = alt || "";
+    }
     lb.hidden = false;
     lbOpen = true;
-    // Geri tuşu tüm menüyü kapatmasın: tarihçeye giriş ekle → geri'de sadece foto kapanır
+    // Geri tuşu tüm menüyü kapatmasın: tarihçeye giriş ekle → geri'de sadece medya kapanır
     try { history.pushState({ lb: 1 }, ""); } catch (e) {}
   }
   function closeLightbox() {
     var lb = document.getElementById("lightbox");
     lb.hidden = true;
-    document.getElementById("lightboxImg").src = "";
+    var im = document.getElementById("lightboxImg"); im.src = "";
+    var vd = document.getElementById("lightboxVideo");
+    if (vd) { try { vd.pause(); } catch (e) {} vd.removeAttribute("src"); vd.hidden = true; }
+    im.hidden = false;
     lbOpen = false;
   }
 
@@ -188,6 +220,11 @@
   document.getElementById("lightbox").addEventListener("click", function () {
     if (lbOpen) { history.back(); } else { closeLightbox(); }
   });
+  // Video kontrollerine (oynat/duraklat/ses) dokunmak lightbox'ı kapatmasın
+  (function () {
+    var vd = document.getElementById("lightboxVideo");
+    if (vd) vd.addEventListener("click", function (e) { e.stopPropagation(); });
+  })();
   // Android/tarayıcı geri tuşu: lightbox açıksa sadece onu kapat (siteden çıkma)
   window.addEventListener("popstate", function () {
     if (lbOpen) { closeLightbox(); }

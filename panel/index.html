@@ -297,6 +297,8 @@
 
       <button class="g-ekle" id="gEkleBtn" type="button">📸 Fotoğraf Ekle</button>
       <input type="file" id="gDosya" accept="image/*" hidden>
+      <button class="g-ekle" id="gVideoBtn" type="button">🎬 Video Ekle</button>
+      <input type="file" id="gVideo" accept="video/*" hidden>
 
       <div class="g-form" id="gForm">
         <img class="g-onizle" id="gOnizle" alt="">
@@ -786,10 +788,79 @@
     /* ================= GALERİ ================= */
     var galeri = [];
     var secilenB64 = null;
+    var secilenVideo = null;
     var BOLUM_AD = { dishes: "🍽️ Lezzetlerimiz", winter: "❄️ Kış", summer: "☀️ Yaz", meat: "🥩 Taze Etimiz" };
 
+    /* ===== Cloudinary (video barındırma) — ücretsiz hesap ayarları =====
+       Cloudinary Dashboard'daki "Cloud name" ve Settings > Upload > Upload presets
+       içindeki UNSIGNED preset adını buraya yaz. Ayarlanmazsa Video butonu gizlenir. */
+    var CLOUD_NAME = "e2zuqnrd";
+    var CLOUD_PRESET = "bnlluqkg";
+    var VIDEO_MAX_MB = 100; // Cloudinary ücretsiz: dosya başına ~100 MB
+    var VIDEO_HAZIR = CLOUD_NAME.indexOf("BURAYA") === -1 && CLOUD_PRESET.indexOf("BURAYA") === -1;
+
+    /* Cloudinary video adresinden kapak (poster) üret (ilk kare, .jpg) */
+    function videoPosterUret(url) {
+      try {
+        var u = url.replace("/upload/", "/upload/so_0,w_800,h_600,c_fill,q_auto/");
+        return u.replace(/\.(mp4|mov|webm|m4v|avi|mkv)(\?.*)?$/i, ".jpg");
+      } catch (e) { return ""; }
+    }
+    /* Videoyu telefondan DOĞRUDAN Cloudinary'ye yükle (Netlify fonksiyonunu by-pass
+       eder → 6MB sınırı yok, depoyu şişirmez). İlerleme yüzdesi verir. */
+    function cloudinaryYukle(file, ilerle) {
+      return new Promise(function (coz, hata) {
+        var fd = new FormData();
+        fd.append("file", file);
+        fd.append("upload_preset", CLOUD_PRESET);
+        var xhr = new XMLHttpRequest();
+        xhr.open("POST", "https://api.cloudinary.com/v1_1/" + CLOUD_NAME + "/video/upload");
+        xhr.upload.onprogress = function (e) { if (e.lengthComputable && ilerle) ilerle(Math.round(e.loaded * 100 / e.total)); };
+        xhr.onload = function () {
+          if (xhr.status >= 200 && xhr.status < 300) { try { coz(JSON.parse(xhr.responseText)); } catch (e2) { hata(new Error("cozumleme")); } }
+          else { hata(new Error("Cloudinary " + xhr.status)); }
+        };
+        xhr.onerror = function () { hata(new Error("ag")); };
+        xhr.send(fd);
+      });
+    }
+    /* Video yükleme akışı: Cloudinary → galeri.json (ekle-video) → listeye ekle */
+    function videoYukleAkis(btn) {
+      var file = secilenVideo;
+      if (!file) return;
+      btn.disabled = true; var e0 = btn.textContent; btn.textContent = "Yükleniyor…";
+      var bolum = $("gBolum").value, aciklama = $("gAciklama").value;
+      durum($("gDurum"), "Video yükleniyor… %0", "bilgi");
+      cloudinaryYukle(file, function (p) { durum($("gDurum"), "Video yükleniyor… %" + p, "bilgi"); })
+        .then(function (r) {
+          var url = r && r.secure_url;
+          if (!url) throw new Error("url yok");
+          var poster = videoPosterUret(url);
+          durum($("gDurum"), "Kaydediliyor…", "bilgi");
+          return fetch("/.netlify/functions/galeri-kaydet", {
+            method: "POST", headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ sifre: sifre, islem: "ekle-video", url: url, poster: poster, bolum: bolum, aciklama: aciklama })
+          }).then(function (resp) { return resp.json().then(function (j) { return { ok: resp.ok, j: j, url: url, poster: poster }; }); });
+        })
+        .then(function (res) {
+          if (res.ok && res.j && res.j.ok) {
+            durum($("gDurum"), "✅ " + res.j.mesaj, "ok");
+            galeri.push({ tip: "video", src: res.url, poster: res.poster, season: bolum, cap: { tr: aciklama || "Video" } });
+            galeriCiz();
+            secilenVideo = null;
+            $("gForm").classList.remove("acik");
+            $("gAciklama").value = "";
+            $("gOnizle").style.display = "";
+          } else {
+            durum($("gDurum"), "⚠️ " + ((res.j && res.j.mesaj) || "Kaydedilemedi."), "hata");
+          }
+        })
+        .catch(function () { durum($("gDurum"), "⚠️ Video yüklenemedi. İnternet/Cloudinary ayarını kontrol et.", "hata"); })
+        .then(function () { btn.disabled = false; btn.textContent = e0; });
+    }
+
     function galeriYukle() {
-      return fetch("../data/galeri.json", { cache: "no-cache" })
+      return fetch("https://raw.githubusercontent.com/mert61-python/restoran/qr/data/galeri.json?t=" + Date.now(), { cache: "no-cache" })
         .then(function (r) { return r.ok ? r.json() : null; })
         .then(function (d) { galeri = (d && Array.isArray(d.fotograflar)) ? d.fotograflar : []; })
         .catch(function () { galeri = []; });
@@ -810,7 +881,8 @@
           var k = document.createElement("div"); k.className = "g-kart";
           var im = document.createElement("img");
           // Yeni yüklenen foto henüz yayına girmemiş olabilir → telefondaki kopyayı göster
-          im.src = f.yerel ? f.yerel : ("../img/" + f.src);
+          im.src = f.yerel ? f.yerel
+                 : (f.tip === "video" ? (f.poster || videoPosterUret(f.src)) : ("../img/" + f.src));
           im.loading = "lazy"; im.alt = "";
           var yz = document.createElement("div"); yz.className = "yazi";
           yz.textContent = (f.cap && f.cap.tr) ? f.cap.tr : f.src;
@@ -819,6 +891,12 @@
           sil.textContent = "🗑";
           sil.addEventListener("click", function () { fotoSil(f); });
           k.appendChild(im); k.appendChild(yz); k.appendChild(sil);
+          if (f.tip === "video") {
+            var pl = document.createElement("span");
+            pl.textContent = "▶";
+            pl.style.cssText = "position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);width:34px;height:34px;border-radius:50%;background:rgba(0,0,0,.55);color:#fff;display:flex;align-items:center;justify-content:center;font-size:15px;pointer-events:none";
+            k.appendChild(pl);
+          }
           if (f.yerel) {
             var bek = document.createElement("span");
             bek.className = "g-bekliyor";
@@ -858,6 +936,29 @@
 
     $("gEkleBtn").addEventListener("click", function () { $("gDosya").click(); });
 
+    if ($("gVideoBtn")) $("gVideoBtn").addEventListener("click", function () {
+      if (!VIDEO_HAZIR) { durum($("gDurum"), "⚠️ Video yükleme henüz ayarlanmadı.", "hata"); return; }
+      $("gVideo").click();
+    });
+    if ($("gVideo")) $("gVideo").addEventListener("change", function () {
+      var d = this.files && this.files[0]; this.value = "";
+      if (!d) return;
+      var mb = d.size / 1024 / 1024;
+      if (mb > VIDEO_MAX_MB) {
+        durum($("gDurum"), "⚠️ Video çok büyük (" + Math.round(mb) + " MB). En fazla " + VIDEO_MAX_MB + " MB — daha kısa bir video dene.", "hata");
+        return;
+      }
+      secilenB64 = null; secilenVideo = d;
+      $("gOnizle").style.display = "none";
+      $("gBoyut").textContent = "🎬 Video seçildi · " + (mb < 1 ? Math.round(mb * 1024) + " KB" : mb.toFixed(1) + " MB");
+      $("gAciklama").placeholder = "Örn: Izgarada Alabalık";
+      $("gForm").classList.add("acik");
+      $("gDurum").className = "durum";
+      $("gForm").scrollIntoView({ behavior: "smooth", block: "center" });
+    });
+    // Cloudinary ayarlanana kadar Video butonunu gizle (bozuk buton olmasın)
+    if (!VIDEO_HAZIR && $("gVideoBtn")) $("gVideoBtn").style.display = "none";
+
     $("gDosya").addEventListener("change", function () {
       var d = this.files && this.files[0];
       this.value = "";
@@ -865,6 +966,8 @@
       durum($("gDurum"), "Fotoğraf hazırlanıyor…", "bilgi");
       kucult(d, 1600, 0.82).then(function (dataUrl) {
         secilenB64 = dataUrl;
+        secilenVideo = null;
+        $("gOnizle").style.display = "";
         $("gOnizle").src = dataUrl;
         var kb = Math.round((dataUrl.length * 3 / 4) / 1024);
         $("gBoyut").textContent = "Küçültüldü · yaklaşık " + kb + " KB";
@@ -878,12 +981,15 @@
 
     $("gVazgec").addEventListener("click", function () {
       secilenB64 = null;
+      secilenVideo = null;
+      $("gOnizle").style.display = "";
       $("gForm").classList.remove("acik");
       $("gAciklama").value = "";
       $("gDurum").className = "durum";
     });
 
     $("gYukle").addEventListener("click", function () {
+      if (secilenVideo) { videoYukleAkis(this); return; }
       if (!secilenB64) return;
       var btn = this; btn.disabled = true;
       var e0 = btn.textContent; btn.textContent = "Yükleniyor…";
