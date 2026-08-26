@@ -1,5 +1,5 @@
 {
-  "guncelleme": "2026-08-25T12:04:49.830Z",
+  "guncelleme": "2026-08-26T10:29:24.337Z",
   "fiyatlar": {
     "Köfte": [
       400,
@@ -37,11 +37,17 @@
     "Haşlama (Kuzu Eti)": [
       300
     ],
+    "Mevsim Salata": [
+      100
+    ],
+    "Çoban Salata": [
+      150
+    ],
     "Sütlaç": [
-      125
+      150
     ],
     "Baklava": [
-      125
+      150
     ],
     "Ayran": [
       40
